@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: finguide
+  labels:
+    app.kubernetes.io/part-of: finguide

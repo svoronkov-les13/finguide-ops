@@ -1,0 +1,6 @@
+---
+- name: Bootstrap Kubernetes node for FinGuide
+  hosts: kubernetes_nodes
+  become: true
+  roles:
+    - kubernetes-node

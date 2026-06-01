@@ -1,0 +1,26 @@
+---
+- name: Install snapd
+  ansible.builtin.apt:
+    name: snapd
+    state: present
+    update_cache: true
+
+- name: Install MicroK8s
+  ansible.builtin.command: snap install microk8s --classic
+  args:
+    creates: /snap/bin/microk8s
+
+- name: Add deploy user to microk8s group
+  ansible.builtin.user:
+    name: "{{ ansible_user | default(ansible_user_id) }}"
+    groups: microk8s
+    append: true
+
+- name: Enable baseline MicroK8s addons
+  ansible.builtin.command: microk8s enable dns ingress cert-manager hostpath-storage
+  changed_when: "'Addon' in microk8s_addons.stdout or 'enabled' in microk8s_addons.stdout"
+  register: microk8s_addons
+
+- name: Show cluster status
+  ansible.builtin.command: microk8s status --wait-ready
+  changed_when: false

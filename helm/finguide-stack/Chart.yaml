@@ -1,0 +1,12 @@
+apiVersion: v2
+name: finguide-stack
+description: FinGuide stack chart
+type: application
+version: 0.1.0
+dependencies:
+  - name: finguide-api
+    version: 0.1.0
+    repository: file://../finguide-api
+  - name: finguide-web
+    version: 0.1.0
+    repository: file://../finguide-web

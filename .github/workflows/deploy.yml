@@ -1,0 +1,68 @@
+name: Deploy FinGuide
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        required: true
+        type: choice
+        options:
+          - demo
+          - prod
+      api_image_tag:
+        description: API image tag
+        required: true
+        default: latest
+      web_image_tag:
+        description: Web image tag
+        required: true
+        default: latest
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        env:
+          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
+        run: |
+          test -n "$KUBECONFIG_B64"
+          mkdir -p "$HOME/.kube"
+          echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Deploy overlay
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          API_IMAGE_TAG: ${{ inputs.api_image_tag }}
+          WEB_IMAGE_TAG: ${{ inputs.web_image_tag }}
+        run: |
+          set -euo pipefail
+          overlay="k8s/overlays/${ENVIRONMENT}"
+
+          kubectl kustomize "$overlay" \
+            | sed "s#ghcr.io/svoronkov-les13/finguide-api:[^[:space:]]*#ghcr.io/svoronkov-les13/finguide-api:${API_IMAGE_TAG}#g" \
+            | sed "s#ghcr.io/svoronkov-les13/finguide-web:[^[:space:]]*#ghcr.io/svoronkov-les13/finguide-web:${WEB_IMAGE_TAG}#g" \
+            | kubectl apply -f -
+
+      - name: Wait for rollout
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+        run: |
+          set -euo pipefail
+          namespace="finguide-${ENVIRONMENT}"
+          kubectl -n "$namespace" rollout status deployment/finguide-api-"$ENVIRONMENT" --timeout=180s
+          kubectl -n "$namespace" rollout status deployment/finguide-web-"$ENVIRONMENT" --timeout=180s
