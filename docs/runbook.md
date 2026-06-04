@@ -29,6 +29,7 @@ ssh curie 'sudo k3s kubectl get pods -A'
 
 ```bash
 kubectl kustomize k8s/overlays/demo
+kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/les13
 kubectl kustomize k8s/overlays/prod
 ```
@@ -39,7 +40,7 @@ kubectl kustomize k8s/overlays/prod
 
 Inputs:
 
-- `environment`: `demo`, `les13` или `prod`;
+- `environment`: `demo`, `dev`, `les13` или `prod`;
 - `api_image_tag`: tag API image в GHCR;
 - `web_image_tag`: tag web image в GHCR.
 
@@ -58,6 +59,15 @@ kubectl apply -k k8s/overlays/les13
 kubectl -n finguide rollout status deployment/finguide-api --timeout=180s
 kubectl -n finguide rollout status deployment/finguide-web --timeout=180s
 kubectl -n finguide rollout status deployment/keycloak --timeout=180s
+```
+
+Для `dev`:
+
+```bash
+kubectl apply -k k8s/overlays/dev
+kubectl -n finguide-dev rollout status deployment/finguide-api-dev --timeout=180s
+kubectl -n finguide-dev rollout status deployment/finguide-web-dev --timeout=180s
+kubectl -n finguide-dev rollout status deployment/keycloak-dev --timeout=180s
 ```
 
 Для demo/prod использовать соответствующий overlay и namespace:
@@ -94,6 +104,17 @@ kubectl -n finguide-demo rollout status deployment/finguide-api-demo
 kubectl -n finguide-demo rollout status deployment/finguide-web-demo
 ```
 
+Для dev:
+
+```bash
+kubectl -n finguide-dev get pods
+kubectl -n finguide-dev get ingress
+kubectl -n finguide-dev get resourcequota
+kubectl -n finguide-dev get certificate
+curl -I https://finguide-dev.les13.tech/
+curl -I https://finguide-dev.les13.tech/auth/
+```
+
 Для prod заменить namespace на `finguide-prod` и deployment names на `finguide-api-prod` / `finguide-web-prod`.
 
 ## Logs
@@ -107,6 +128,8 @@ kubectl -n finguide logs deployment/keycloak --tail=100
 kubectl -n finguide logs deployment/keycloak-postgres --tail=100
 ```
 
+Для `dev` заменить namespace на `finguide-dev`, а deployment names на `finguide-api-dev`, `finguide-web-dev`, `keycloak-dev`, `keycloak-postgres-dev`.
+
 ## Rollback
 
 Для `les13`:
@@ -117,6 +140,7 @@ kubectl -n finguide rollout undo deployment/finguide-web
 ```
 
 Перед rollback production проверить совместимость database migrations и Keycloak state.
+Для dev допустимо чаще пересоздавать namespace целиком, если состояние не нужно сохранять.
 
 ## Restart
 
@@ -135,5 +159,7 @@ kubectl -n ingress-nginx get pods
 kubectl -n cert-manager get pods
 kubectl -n finguide describe ingress finguide
 kubectl -n finguide describe certificate finguide-les13-tls
+kubectl -n finguide-dev describe ingress finguide-dev
+kubectl -n finguide-dev describe certificate finguide-dev-les13-tls
 kubectl get clusterissuer letsencrypt-prod
 ```

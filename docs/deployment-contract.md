@@ -29,6 +29,7 @@ ghcr.io/svoronkov-les13/finguide-web:<tag>
 ```
 
 Для production лучше использовать immutable tags: release tag или SHA. Для `les13` допустим tag `les13`, если он осознанно используется как текущий deploy target.
+Для `dev` по умолчанию используется tag `dev`; для отладки конкретной сборки можно передавать short SHA через workflow inputs.
 
 ## Runtime configuration
 
@@ -57,3 +58,24 @@ ConfigMaps можно коммитить, если они не содержат 
 - `keycloak-secrets`
 
 Secret values должны быть заведены до деплоя приложения.
+
+## Контракт окружения `dev`
+
+Dev deployment target:
+
+- namespace: `finguide-dev`
+- overlay: `k8s/overlays/dev`
+- domain: `finguide-dev.les13.tech`
+- ingress class: `nginx`
+- TLS issuer: `letsencrypt-prod`
+- Keycloak realm: `finguide-dev`
+
+Dev использует отдельный Keycloak и отдельный PostgreSQL. Это позволяет свободно менять realm/client settings, redirect URI, roles и test users без риска для основного `les13`.
+
+Обязательные secret names в namespace `finguide-dev`:
+
+- `finguide-api-secrets`
+- `finguide-web-secrets`
+- `keycloak-secrets`
+
+Имена такие же, как в `les13`, но namespace другой. Значения secret'ов должны быть dev-отдельными.

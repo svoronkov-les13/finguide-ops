@@ -24,6 +24,7 @@ finguide-be / finguide-web
 ```
 
 Для текущей площадки `les13` целевой namespace: `finguide`.
+Для dev-контура целевой namespace: `finguide-dev`.
 
 ## Runtime-компоненты
 
@@ -31,6 +32,8 @@ finguide-be / finguide-web
 - `finguide-web`: frontend Deployment и Service.
 - `keycloak`: identity provider для `les13`.
 - `keycloak-postgres`: PostgreSQL для Keycloak на single-node площадке.
+- `keycloak-dev`: отдельный identity provider для `finguide-dev.les13.tech`.
+- `keycloak-postgres-dev`: отдельный PostgreSQL для dev Keycloak.
 - `finguide-stack`: umbrella Helm chart для установки app-компонентов вместе.
 - `ingress-nginx`: входящий HTTP/HTTPS traffic.
 - `cert-manager`: выпуск TLS-сертификатов Let's Encrypt.
@@ -57,6 +60,14 @@ k3s запускается с такими принципами:
 - `https://finguide.les13.tech/` -> `finguide-web`
 - `https://finguide.les13.tech/finguide-api` -> `finguide-api`
 - `https://finguide.les13.tech/auth` -> `keycloak`
+
+Для `dev` внешний вход отдельный, на том же IP:
+
+- `https://finguide-dev.les13.tech/` -> `finguide-web-dev`
+- `https://finguide-dev.les13.tech/finguide-api` -> `finguide-api-dev`
+- `https://finguide-dev.les13.tech/auth` -> `keycloak-dev`
+
+Dev-контур живет в отдельном namespace `finguide-dev`, имеет отдельный Keycloak realm `finguide-dev`, отдельный Keycloak/Postgres и ограничен `ResourceQuota`/`LimitRange`.
 
 NodePort для публичного доступа не используется. Наружу должны быть открыты только `22`, `80`, `443`; `6443` нужен только для администрирования и CI/CD.
 

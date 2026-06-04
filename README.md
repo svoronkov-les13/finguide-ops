@@ -25,6 +25,7 @@ FinGuide разворачивается через Kubernetes. Прикладн�
 docs/                  Архитектура, окружения, runbook'и, восстановление
 k8s/base/              Общие Kubernetes-ресурсы
 k8s/overlays/demo/     Demo-окружение
+k8s/overlays/dev/      Dev-контур finguide-dev.les13.tech
 k8s/overlays/les13/    Single-node Curie для finguide.les13.tech
 k8s/overlays/prod/     Production-окружение
 k8s/platform/          Cluster-level ресурсы, например cert-manager issuers
@@ -46,6 +47,7 @@ scripts/               Локальные проверки и ops helpers
 
 ```bash
 kubectl kustomize k8s/overlays/demo
+kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/les13
 kubectl kustomize k8s/overlays/prod
 ```
@@ -64,6 +66,7 @@ ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/pl
 - IP: `161.104.36.83`
 - SSH user: `ops`
 - домен: `https://finguide.les13.tech`
+- dev-домен: `https://finguide-dev.les13.tech`
 - Kubernetes: single-node k3s
 - ingress: ingress-nginx на host ports `80/443`
 - TLS: cert-manager + Let's Encrypt
@@ -73,5 +76,5 @@ ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/pl
 
 1. `finguide-be` и `finguide-web` публикуют образы в GHCR.
 2. Этот репозиторий выбирает Kubernetes overlay и image tags.
-3. GitHub Actions деплоит `k8s/overlays/les13`, `demo` или `prod`.
+3. GitHub Actions деплоит `k8s/overlays/les13`, `dev`, `demo` или `prod`.
 4. Ansible используется только для bootstrap node и host-level операций.

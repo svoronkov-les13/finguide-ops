@@ -62,6 +62,17 @@ kubectl apply -k k8s/overlays/les13
 
 8. Проверить rollout и внешний доступ по `docs/runbook.md`.
 
+## Восстановление dev-контура
+
+Dev-контур считается менее ценным, чем основной `les13`. Если нет специальных причин сохранять данные, быстрее пересоздать его:
+
+```bash
+kubectl delete namespace finguide-dev
+kubectl apply -k k8s/overlays/dev
+```
+
+После пересоздания заново завести dev secrets в namespace `finguide-dev` и проверить `https://finguide-dev.les13.tech`.
+
 ## Общий порядок восстановления
 
 1. Починить или заново подготовить Kubernetes node.

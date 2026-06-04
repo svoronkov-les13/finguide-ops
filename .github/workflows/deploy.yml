@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - demo
+          - dev
           - les13
           - prod
       api_image_tag:
@@ -64,15 +65,29 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
         run: |
           set -euo pipefail
-          if [[ "$ENVIRONMENT" == "les13" ]]; then
-            namespace="finguide"
-            api_deployment="finguide-api"
-            web_deployment="finguide-web"
-          else
-            namespace="finguide-${ENVIRONMENT}"
-            api_deployment="finguide-api-${ENVIRONMENT}"
-            web_deployment="finguide-web-${ENVIRONMENT}"
-          fi
+          keycloak_deployment=""
+          case "$ENVIRONMENT" in
+            les13)
+              namespace="finguide"
+              api_deployment="finguide-api"
+              web_deployment="finguide-web"
+              keycloak_deployment="keycloak"
+              ;;
+            dev)
+              namespace="finguide-dev"
+              api_deployment="finguide-api-dev"
+              web_deployment="finguide-web-dev"
+              keycloak_deployment="keycloak-dev"
+              ;;
+            *)
+              namespace="finguide-${ENVIRONMENT}"
+              api_deployment="finguide-api-${ENVIRONMENT}"
+              web_deployment="finguide-web-${ENVIRONMENT}"
+              ;;
+          esac
 
           kubectl -n "$namespace" rollout status deployment/"$api_deployment" --timeout=180s
           kubectl -n "$namespace" rollout status deployment/"$web_deployment" --timeout=180s
+          if [[ -n "$keycloak_deployment" ]]; then
+            kubectl -n "$namespace" rollout status deployment/"$keycloak_deployment" --timeout=180s
+          fi
