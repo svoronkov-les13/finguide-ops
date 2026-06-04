@@ -17,7 +17,7 @@
 
 - Kubernetes manifests и overlays;
 - Helm packaging;
-- GitHub Actions deployment workflow;
+- GitHub Actions deployment workflows;
 - Ansible bootstrap для Kubernetes node;
 - operational docs и runbook'и.
 
@@ -30,6 +30,21 @@ ghcr.io/svoronkov-les13/finguide-web:<tag>
 
 Для production лучше использовать immutable tags: release tag или SHA. Для `les13` допустим tag `les13`, если он осознанно используется как текущий deploy target.
 Для `dev` по умолчанию используется tag `dev`; для отладки конкретной сборки можно передавать short SHA через workflow inputs.
+
+## GitHub Actions deploy contract
+
+Основные ручные workflows:
+
+- `Deploy finguide-dev`: деплоит `k8s/overlays/dev`, GitHub environment `dev`, namespace `finguide-dev`.
+- `Deploy finguide`: деплоит `k8s/overlays/les13`, GitHub environment `les13`, namespace `finguide`.
+
+Оба workflow принимают `api_image_tag` и `web_image_tag`, используют `scripts/deploy-kustomize-overlay.sh`, применяют манифесты через `kubectl` и ждут rollout application deployments и Keycloak.
+
+Обязательный GitHub Actions secret в каждом target environment:
+
+- `KUBECONFIG_B64`: kubeconfig target cluster в base64.
+
+Workflow `Deploy FinGuide Overlay` используется как общий fallback для ручного деплоя любого overlay из списка `demo`, `dev`, `les13`, `prod`.
 
 ## Runtime configuration
 

@@ -18,13 +18,14 @@
 finguide-be / finguide-web
   -> build Docker image
   -> push to GHCR
-  -> finguide-ops GitHub Actions deploy
+  -> finguide-ops GitHub Actions deploy workflow
   -> Kubernetes overlay
   -> target namespace
 ```
 
 Для текущей площадки `les13` целевой namespace: `finguide`.
 Для dev-контура целевой namespace: `finguide-dev`.
+Для них заведены отдельные ручные workflows: `Deploy finguide` и `Deploy finguide-dev`.
 
 ## Runtime-компоненты
 

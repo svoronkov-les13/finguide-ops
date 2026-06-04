@@ -51,6 +51,10 @@ Overlay:
 
 - `k8s/overlays/les13`
 
+Deploy workflow:
+
+- `Deploy finguide`
+
 Image tag policy:
 
 - По умолчанию `les13`.
@@ -83,6 +87,10 @@ Kubernetes namespace:
 Overlay:
 
 - `k8s/overlays/dev`
+
+Deploy workflow:
+
+- `Deploy finguide-dev`
 
 Image tag policy:
 

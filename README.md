@@ -17,7 +17,12 @@ FinGuide разворачивается через Kubernetes. Прикладн�
 - `ghcr.io/svoronkov-les13/finguide-api:<tag>`
 - `ghcr.io/svoronkov-les13/finguide-web:<tag>`
 
-Деплой запускается из этого репозитория через GitHub Actions.
+Деплой запускается из этого репозитория через GitHub Actions. Для основных площадок есть отдельные ручные pipelines:
+
+- `Deploy finguide-dev` раскатывает `k8s/overlays/dev` в namespace `finguide-dev`.
+- `Deploy finguide` раскатывает `k8s/overlays/les13` в namespace `finguide`.
+
+Workflow `Deploy FinGuide Overlay` оставлен как общий fallback для `demo`, `dev`, `les13` и `prod`.
 
 ## Структура
 
@@ -75,6 +80,6 @@ ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/pl
 ## Первый деплой
 
 1. `finguide-be` и `finguide-web` публикуют образы в GHCR.
-2. Этот репозиторий выбирает Kubernetes overlay и image tags.
-3. GitHub Actions деплоит `k8s/overlays/les13`, `dev`, `demo` или `prod`.
+2. В `finguide-ops` запускается нужный deploy workflow и передаются image tags.
+3. GitHub Actions рендерит overlay, подменяет tags и применяет манифесты в cluster.
 4. Ansible используется только для bootstrap node и host-level операций.

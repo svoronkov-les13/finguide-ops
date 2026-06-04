@@ -36,38 +36,62 @@ kubectl kustomize k8s/overlays/prod
 
 ## Deploy через GitHub Actions
 
-Использовать workflow `Deploy FinGuide` из этого репозитория.
+Для основных площадок использовать отдельные ручные workflows из этого репозитория:
 
-Inputs:
+- `Deploy finguide-dev` -> `k8s/overlays/dev`, namespace `finguide-dev`, host `finguide-dev.les13.tech`;
+- `Deploy finguide` -> `k8s/overlays/les13`, namespace `finguide`, host `finguide.les13.tech`.
 
-- `environment`: `demo`, `dev`, `les13` или `prod`;
+Оба workflow принимают:
+
 - `api_image_tag`: tag API image в GHCR;
 - `web_image_tag`: tag web image в GHCR.
 
-Workflow рендерит выбранный kustomize overlay, подменяет image tags и применяет результат в target cluster.
+Defaults:
 
-Для GitHub Actions нужен secret:
+- `Deploy finguide-dev`: `dev`;
+- `Deploy finguide`: `les13`.
+
+Workflow рендерит kustomize overlay, подменяет image tags, применяет результат в target cluster и ждет rollout `api`, `web` и соответствующего Keycloak.
+
+Workflow `Deploy FinGuide Overlay` оставлен как общий fallback для `demo`, `dev`, `les13` и `prod`.
+
+Для GitHub Actions нужен environment secret:
 
 - `KUBECONFIG_B64`: base64-encoded kubeconfig target cluster.
+
+Secret должен быть заведен в GitHub Environments, которые использует workflow:
+
+- `dev` для `Deploy finguide-dev`;
+- `les13` для `Deploy finguide`.
+
+Если используется общий fallback workflow, такой же secret нужен в выбранном environment: `demo`, `dev`, `les13` или `prod`.
 
 ## Ручной deploy
 
 Для `les13`:
 
 ```bash
-kubectl apply -k k8s/overlays/les13
-kubectl -n finguide rollout status deployment/finguide-api --timeout=180s
-kubectl -n finguide rollout status deployment/finguide-web --timeout=180s
-kubectl -n finguide rollout status deployment/keycloak --timeout=180s
+OVERLAY=k8s/overlays/les13 \
+NAMESPACE=finguide \
+API_IMAGE_TAG=les13 \
+WEB_IMAGE_TAG=les13 \
+API_DEPLOYMENT=finguide-api \
+WEB_DEPLOYMENT=finguide-web \
+KEYCLOAK_DEPLOYMENT=keycloak \
+bash scripts/deploy-kustomize-overlay.sh
 ```
 
 Для `dev`:
 
 ```bash
-kubectl apply -k k8s/overlays/dev
-kubectl -n finguide-dev rollout status deployment/finguide-api-dev --timeout=180s
-kubectl -n finguide-dev rollout status deployment/finguide-web-dev --timeout=180s
-kubectl -n finguide-dev rollout status deployment/keycloak-dev --timeout=180s
+OVERLAY=k8s/overlays/dev \
+NAMESPACE=finguide-dev \
+API_IMAGE_TAG=dev \
+WEB_IMAGE_TAG=dev \
+API_DEPLOYMENT=finguide-api-dev \
+WEB_DEPLOYMENT=finguide-web-dev \
+KEYCLOAK_DEPLOYMENT=keycloak-dev \
+bash scripts/deploy-kustomize-overlay.sh
 ```
 
 Для demo/prod использовать соответствующий overlay и namespace:

@@ -1,4 +1,4 @@
-name: Deploy FinGuide
+name: Deploy FinGuide Overlay
 
 on:
   workflow_dispatch:
@@ -41,6 +41,7 @@ jobs:
         env:
           KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
         run: |
+          set -euo pipefail
           test -n "$KUBECONFIG_B64"
           mkdir -p "$HOME/.kube"
           echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/config"
@@ -53,41 +54,26 @@ jobs:
           WEB_IMAGE_TAG: ${{ inputs.web_image_tag }}
         run: |
           set -euo pipefail
-          overlay="k8s/overlays/${ENVIRONMENT}"
-
-          kubectl kustomize "$overlay" \
-            | sed "s#ghcr.io/svoronkov-les13/finguide-api:[^[:space:]]*#ghcr.io/svoronkov-les13/finguide-api:${API_IMAGE_TAG}#g" \
-            | sed "s#ghcr.io/svoronkov-les13/finguide-web:[^[:space:]]*#ghcr.io/svoronkov-les13/finguide-web:${WEB_IMAGE_TAG}#g" \
-            | kubectl apply -f -
-
-      - name: Wait for rollout
-        env:
-          ENVIRONMENT: ${{ inputs.environment }}
-        run: |
-          set -euo pipefail
-          keycloak_deployment=""
           case "$ENVIRONMENT" in
             les13)
-              namespace="finguide"
-              api_deployment="finguide-api"
-              web_deployment="finguide-web"
-              keycloak_deployment="keycloak"
+              export NAMESPACE="finguide"
+              export API_DEPLOYMENT="finguide-api"
+              export WEB_DEPLOYMENT="finguide-web"
+              export KEYCLOAK_DEPLOYMENT="keycloak"
               ;;
             dev)
-              namespace="finguide-dev"
-              api_deployment="finguide-api-dev"
-              web_deployment="finguide-web-dev"
-              keycloak_deployment="keycloak-dev"
+              export NAMESPACE="finguide-dev"
+              export API_DEPLOYMENT="finguide-api-dev"
+              export WEB_DEPLOYMENT="finguide-web-dev"
+              export KEYCLOAK_DEPLOYMENT="keycloak-dev"
               ;;
             *)
-              namespace="finguide-${ENVIRONMENT}"
-              api_deployment="finguide-api-${ENVIRONMENT}"
-              web_deployment="finguide-web-${ENVIRONMENT}"
+              export NAMESPACE="finguide-${ENVIRONMENT}"
+              export API_DEPLOYMENT="finguide-api-${ENVIRONMENT}"
+              export WEB_DEPLOYMENT="finguide-web-${ENVIRONMENT}"
+              export KEYCLOAK_DEPLOYMENT=""
               ;;
           esac
 
-          kubectl -n "$namespace" rollout status deployment/"$api_deployment" --timeout=180s
-          kubectl -n "$namespace" rollout status deployment/"$web_deployment" --timeout=180s
-          if [[ -n "$keycloak_deployment" ]]; then
-            kubectl -n "$namespace" rollout status deployment/"$keycloak_deployment" --timeout=180s
-          fi
+          export OVERLAY="k8s/overlays/${ENVIRONMENT}"
+          bash scripts/deploy-kustomize-overlay.sh

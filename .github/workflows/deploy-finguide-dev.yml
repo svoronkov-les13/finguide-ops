@@ -1,0 +1,53 @@
+name: Deploy finguide-dev
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_image_tag:
+        description: API image tag
+        required: true
+        default: dev
+      web_image_tag:
+        description: Web image tag
+        required: true
+        default: dev
+
+jobs:
+  deploy:
+    name: Deploy finguide-dev
+    runs-on: ubuntu-latest
+    environment: dev
+    concurrency:
+      group: deploy-finguide-dev
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Configure kubeconfig
+        env:
+          KUBECONFIG_B64: ${{ secrets.KUBECONFIG_B64 }}
+        run: |
+          set -euo pipefail
+          test -n "$KUBECONFIG_B64"
+          mkdir -p "$HOME/.kube"
+          echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Deploy finguide-dev
+        env:
+          OVERLAY: k8s/overlays/dev
+          NAMESPACE: finguide-dev
+          API_IMAGE_TAG: ${{ inputs.api_image_tag }}
+          WEB_IMAGE_TAG: ${{ inputs.web_image_tag }}
+          API_DEPLOYMENT: finguide-api-dev
+          WEB_DEPLOYMENT: finguide-web-dev
+          KEYCLOAK_DEPLOYMENT: keycloak-dev
+        run: bash scripts/deploy-kustomize-overlay.sh
