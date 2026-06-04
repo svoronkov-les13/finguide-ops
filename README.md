@@ -25,7 +25,9 @@ Deployments are driven from this repository through GitHub Actions.
 docs/                  Architecture, environments, runbooks, recovery
 k8s/base/              Shared Kubernetes resources
 k8s/overlays/demo/     Demo environment customization
+k8s/overlays/les13/    Single-node Curie deployment for finguide.les13.tech
 k8s/overlays/prod/     Production environment customization
+k8s/platform/          Cluster-level resources such as cert-manager issuers
 helm/                  Helm chart skeletons for app and stack packaging
 ansible/               Host bootstrap for Kubernetes nodes
 scripts/               Local validation and operations helpers
@@ -44,6 +46,7 @@ Render the demo overlay when `kubectl` includes kustomize support:
 
 ```bash
 kubectl kustomize k8s/overlays/demo
+kubectl kustomize k8s/overlays/les13
 ```
 
 ## First Deploy Shape

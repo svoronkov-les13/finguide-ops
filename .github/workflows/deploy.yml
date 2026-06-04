@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - demo
+          - les13
           - prod
       api_image_tag:
         description: API image tag
@@ -63,6 +64,15 @@ jobs:
           ENVIRONMENT: ${{ inputs.environment }}
         run: |
           set -euo pipefail
-          namespace="finguide-${ENVIRONMENT}"
-          kubectl -n "$namespace" rollout status deployment/finguide-api-"$ENVIRONMENT" --timeout=180s
-          kubectl -n "$namespace" rollout status deployment/finguide-web-"$ENVIRONMENT" --timeout=180s
+          if [[ "$ENVIRONMENT" == "les13" ]]; then
+            namespace="finguide"
+            api_deployment="finguide-api"
+            web_deployment="finguide-web"
+          else
+            namespace="finguide-${ENVIRONMENT}"
+            api_deployment="finguide-api-${ENVIRONMENT}"
+            web_deployment="finguide-web-${ENVIRONMENT}"
+          fi
+
+          kubectl -n "$namespace" rollout status deployment/"$api_deployment" --timeout=180s
+          kubectl -n "$namespace" rollout status deployment/"$web_deployment" --timeout=180s

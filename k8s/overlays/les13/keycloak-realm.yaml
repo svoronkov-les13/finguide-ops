@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm
+data:
+  finguide-realm.json: |
+    {
+      "realm": "finguide",
+      "enabled": true,
+      "displayName": "FinGuide",
+      "registrationAllowed": true,
+      "resetPasswordAllowed": true,
+      "rememberMe": true,
+      "internationalizationEnabled": true,
+      "supportedLocales": ["ru", "en"],
+      "defaultLocale": "ru",
+      "sslRequired": "external",
+      "roles": {
+        "realm": [
+          { "name": "user" },
+          { "name": "admin" }
+        ]
+      },
+      "clients": [
+        {
+          "clientId": "finguide-api",
+          "name": "FinGuide API",
+          "enabled": true,
+          "protocol": "openid-connect",
+          "publicClient": false,
+          "standardFlowEnabled": false,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": false,
+          "redirectUris": [],
+          "webOrigins": []
+        },
+        {
+          "clientId": "finguide-web",
+          "name": "FinGuide Web",
+          "enabled": true,
+          "protocol": "openid-connect",
+          "publicClient": true,
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": true,
+          "implicitFlowEnabled": false,
+          "redirectUris": [
+            "https://finguide.les13.tech/fg/auth/callback"
+          ],
+          "webOrigins": [
+            "https://finguide.les13.tech"
+          ],
+          "attributes": {
+            "post.logout.redirect.uris": "https://finguide.les13.tech/fg/login"
+          },
+          "protocolMappers": [
+            {
+              "name": "finguide-api-audience",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-audience-mapper",
+              "consentRequired": false,
+              "config": {
+                "included.client.audience": "finguide-api",
+                "id.token.claim": "false",
+                "access.token.claim": "true"
+              }
+            }
+          ]
+        }
+      ]
+    }

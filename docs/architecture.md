@@ -32,10 +32,12 @@ finguide-be / finguide-web
 
 ## Kubernetes Distribution
 
-The current target is a small Kubernetes distribution such as MicroK8s or k3s. The manifests are distribution-neutral. Ansible bootstrap tasks can be adjusted for the chosen distribution without changing app deployment contracts.
+The current target for `finguide.les13.tech` is single-node k3s on Curie (`161.104.36.83`). k3s runs with bundled Traefik and ServiceLB disabled, local-path storage enabled, ingress-nginx bound to host ports 80/443, and cert-manager issuing Let's Encrypt certificates.
+
+The application manifests remain standard Kubernetes resources. Environment overlays decide hostnames, image tags, ingress, and replica counts.
 
 ## Non-Goals
 
 - No application `systemd` deployment.
-- No Terraform until cloud resources or repeatable infrastructure provisioning require it.
+- No Terraform until cloud resources or repeatable infrastructure provisioning require it; Curie already exists, so Ansible owns node bootstrap for now.
 - No secrets committed to git.

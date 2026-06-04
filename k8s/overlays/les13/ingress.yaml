@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: finguide
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - finguide.les13.tech
+      secretName: finguide-les13-tls
+  rules:
+    - host: finguide.les13.tech
+      http:
+        paths:
+          - path: /finguide-api
+            pathType: Prefix
+            backend:
+              service:
+                name: finguide-api
+                port:
+                  name: http
+          - path: /auth
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: finguide-web
+                port:
+                  name: http

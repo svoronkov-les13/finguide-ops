@@ -3,8 +3,11 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - finguide-api/deployment.yaml
+  - finguide-api/pvc.yaml
   - finguide-api/service.yaml
   - finguide-web/deployment.yaml
   - finguide-web/service.yaml
-commonLabels:
-  app.kubernetes.io/part-of: finguide
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: finguide
+    includeSelectors: true

@@ -1,0 +1,21 @@
+---
+k3s_node_name: curie
+k3s_public_ip: 161.104.36.83
+k3s_tls_sans:
+  - 161.104.36.83
+  - finguide.les13.tech
+k3s_cluster_cidr: 10.42.0.0/16
+k3s_service_cidr: 10.43.0.0/16
+k3s_cluster_dns: 10.43.0.10
+k3s_flannel_backend: vxlan
+k3s_disable_components:
+  - traefik
+  - servicelb
+k3s_write_kubeconfig_mode: "0640"
+k3s_system_reserved: cpu=500m,memory=1Gi
+k3s_kube_reserved: cpu=500m,memory=1Gi
+k3s_eviction_hard: memory.available<1Gi,nodefs.available<10%
+
+ingress_nginx_chart_version: 4.12.1
+cert_manager_chart_version: v1.17.1
+cert_manager_letsencrypt_email: admin@les13.tech

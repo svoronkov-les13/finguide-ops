@@ -1,26 +1,141 @@
 ---
-- name: Install snapd
+- name: Install Kubernetes host packages
   ansible.builtin.apt:
-    name: snapd
+    name:
+      - ca-certificates
+      - curl
+      - gnupg
+      - python3-kubernetes
     state: present
     update_cache: true
 
-- name: Install MicroK8s
-  ansible.builtin.command: snap install microk8s --classic
+- name: Create k3s config directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: directory
+    mode: "0755"
+
+- name: Write k3s server config
+  ansible.builtin.template:
+    src: k3s-config.yaml.j2
+    dest: /etc/rancher/k3s/config.yaml
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart k3s
+
+- name: Install k3s server
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -sfL https://get.k3s.io | sh -s - server --config /etc/rancher/k3s/config.yaml
   args:
-    creates: /snap/bin/microk8s
+    executable: /bin/bash
+    creates: /usr/local/bin/k3s
 
-- name: Add deploy user to microk8s group
-  ansible.builtin.user:
-    name: "{{ ansible_user | default(ansible_user_id) }}"
-    groups: microk8s
-    append: true
+- name: Wait for Kubernetes API
+  ansible.builtin.command: k3s kubectl wait --for=condition=Ready node/{{ k3s_node_name }} --timeout=180s
+  changed_when: false
 
-- name: Enable baseline MicroK8s addons
-  ansible.builtin.command: microk8s enable dns ingress cert-manager hostpath-storage
-  changed_when: "'Addon' in microk8s_addons.stdout or 'enabled' in microk8s_addons.stdout"
-  register: microk8s_addons
+- name: Create deploy user's kubeconfig directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.kube"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0700"
 
-- name: Show cluster status
-  ansible.builtin.command: microk8s status --wait-ready
+- name: Copy kubeconfig for deploy user
+  ansible.builtin.copy:
+    src: /etc/rancher/k3s/k3s.yaml
+    dest: "/home/{{ ansible_user }}/.kube/config"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0600"
+    remote_src: true
+
+- name: Point kubeconfig at public API address
+  ansible.builtin.replace:
+    path: "/home/{{ ansible_user }}/.kube/config"
+    regexp: "https://127\\.0\\.0\\.1:6443"
+    replace: "https://{{ k3s_public_ip }}:6443"
+
+- name: Install Helm
+  ansible.builtin.shell: |
+    set -euo pipefail
+    curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/helm
+
+- name: Add ingress-nginx Helm repository
+  ansible.builtin.command: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  register: ingress_repo
+  changed_when: "'has been added' in ingress_repo.stdout"
+  failed_when: ingress_repo.rc != 0 and 'already exists' not in ingress_repo.stderr
+
+- name: Add Jetstack Helm repository
+  ansible.builtin.command: helm repo add jetstack https://charts.jetstack.io
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  register: jetstack_repo
+  changed_when: "'has been added' in jetstack_repo.stdout"
+  failed_when: jetstack_repo.rc != 0 and 'already exists' not in jetstack_repo.stderr
+
+- name: Update Helm repositories
+  ansible.builtin.command: helm repo update
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  changed_when: false
+
+- name: Install ingress-nginx on host network
+  ansible.builtin.command: >
+    helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx
+    --namespace ingress-nginx
+    --create-namespace
+    --version {{ ingress_nginx_chart_version }}
+    --set controller.kind=DaemonSet
+    --set controller.hostNetwork=true
+    --set controller.dnsPolicy=ClusterFirstWithHostNet
+    --set controller.service.enabled=false
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+- name: Install cert-manager
+  ansible.builtin.command: >
+    helm upgrade --install cert-manager jetstack/cert-manager
+    --namespace cert-manager
+    --create-namespace
+    --version {{ cert_manager_chart_version }}
+    --set crds.enabled=true
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+- name: Apply Let's Encrypt ClusterIssuer
+  ansible.builtin.shell: |
+    set -euo pipefail
+    cat <<'EOF' | k3s kubectl apply -f -
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-prod
+    spec:
+      acme:
+        email: {{ cert_manager_letsencrypt_email }}
+        server: https://acme-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: letsencrypt-prod-account-key
+        solvers:
+          - http01:
+              ingress:
+                ingressClassName: nginx
+    EOF
+  args:
+    executable: /bin/bash
+  register: clusterissuer_apply
+  changed_when: "'configured' in clusterissuer_apply.stdout or 'created' in clusterissuer_apply.stdout"
+
+- name: Show cluster nodes
+  ansible.builtin.command: k3s kubectl get nodes -o wide
   changed_when: false
