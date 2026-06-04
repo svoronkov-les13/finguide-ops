@@ -1,36 +1,80 @@
 # Disaster Recovery
 
-## Goals
+## Цели
 
-- Restore service after a failed deploy.
-- Restore application state after data loss.
-- Rebuild a Kubernetes node from documented steps.
+- Восстановить сервис после неудачного деплоя.
+- Восстановить состояние приложения после потери данных.
+- Пересобрать Kubernetes node по документированным шагам.
 
-## Backup Scope
+## Что нужно бэкапить
 
-Track these assets before production launch:
+До production launch надо зафиксировать процедуры для:
 
-- Database dumps and retention policy.
-- Keycloak realm export and client configuration.
-- Kubernetes secrets backup procedure.
-- Persistent volume backup procedure.
+- database dumps и retention policy;
+- Keycloak realm export и client configuration;
+- Kubernetes secrets backup;
+- persistent volumes backup;
 - GitHub Actions secrets inventory.
 
-Secret values must not be committed to this repository.
+Secret values нельзя коммитить в этот репозиторий.
 
-## Recovery Order
+## Восстановление Curie/k3s
 
-1. Provision or repair Kubernetes node.
-2. Restore cluster add-ons: ingress, cert-manager, storage, monitoring.
-3. Restore namespaces and secrets.
-4. Restore database and identity provider state.
-5. Deploy FinGuide from `finguide-ops`.
-6. Run health checks from `docs/runbook.md`.
+1. Проверить доступ к host:
 
-## Drill Checklist
+```bash
+ssh curie
+```
 
-- [ ] Restore demo from backup into a clean namespace.
-- [ ] Confirm API health endpoint.
-- [ ] Confirm web can reach API.
-- [ ] Confirm login flow.
-- [ ] Confirm rollback procedure.
+2. Восстановить или заново подготовить пользователя `ops` с sudo.
+
+3. Запустить bootstrap из `finguide-ops`:
+
+```bash
+ansible-playbook -i ansible/inventories/prod/hosts.ini ansible/playbooks/bootstrap-kubernetes.yml
+```
+
+4. Проверить node и system namespaces:
+
+```bash
+kubectl get nodes -o wide
+kubectl get pods -A
+```
+
+5. Восстановить secrets:
+
+```bash
+kubectl -n finguide get secrets
+```
+
+Если secret'ов нет, создать `finguide-api-secrets`, `finguide-web-secrets`, `keycloak-secrets` из внешнего хранилища.
+
+6. Восстановить persistent data:
+
+- `finguide-api-data`
+- `keycloak-postgres-data`
+
+7. Применить overlay:
+
+```bash
+kubectl apply -k k8s/overlays/les13
+```
+
+8. Проверить rollout и внешний доступ по `docs/runbook.md`.
+
+## Общий порядок восстановления
+
+1. Починить или заново подготовить Kubernetes node.
+2. Восстановить cluster add-ons: ingress-nginx, cert-manager, storage.
+3. Восстановить namespaces и secrets.
+4. Восстановить database и identity provider state.
+5. Задеплоить FinGuide из `finguide-ops`.
+6. Выполнить health checks из `docs/runbook.md`.
+
+## Drill checklist
+
+- [ ] Восстановить demo или les13 в чистый namespace/cluster.
+- [ ] Проверить API health endpoint.
+- [ ] Проверить, что web ходит в API.
+- [ ] Проверить login flow через Keycloak.
+- [ ] Проверить rollback procedure.

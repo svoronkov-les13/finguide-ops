@@ -1,35 +1,59 @@
-# Deployment Contract
+# Контракт деплоя
 
-## Application Repositories
+## Репозитории приложения
 
-`finguide-be` and `finguide-web` are responsible for:
+`finguide-be` и `finguide-web` отвечают за:
 
-- Building Docker images.
-- Running application tests.
-- Publishing images to GitHub Container Registry.
-- Maintaining `.env.example` and app-local deployment notes.
+- сборку Docker images;
+- запуск application tests;
+- публикацию images в GitHub Container Registry;
+- поддержку `.env.example` и локальных deployment notes.
 
-They are not responsible for Kubernetes environment orchestration.
+Они не отвечают за Kubernetes orchestration, host bootstrap и environment-level инфраструктуру.
 
-## Ops Repository
+## Ops-репозиторий
 
-`finguide-ops` is responsible for:
+`finguide-ops` отвечает за:
 
-- Kubernetes manifests and overlays.
-- Helm chart packaging.
-- GitHub Actions deployment workflow.
-- Host bootstrap automation.
-- Operational docs and runbooks.
+- Kubernetes manifests и overlays;
+- Helm packaging;
+- GitHub Actions deployment workflow;
+- Ansible bootstrap для Kubernetes node;
+- operational docs и runbook'и.
 
-## Image Names
+## Имена образов
 
 ```text
 ghcr.io/svoronkov-les13/finguide-api:<tag>
 ghcr.io/svoronkov-les13/finguide-web:<tag>
 ```
 
-Tags should be immutable for production.
+Для production лучше использовать immutable tags: release tag или SHA. Для `les13` допустим tag `les13`, если он осознанно используется как текущий deploy target.
 
-## Runtime Configuration
+## Runtime configuration
 
-Runtime configuration is injected through Kubernetes ConfigMaps and Secrets. Secret values are managed outside git.
+Runtime configuration передается через Kubernetes ConfigMaps и Secrets.
+
+ConfigMaps можно коммитить, если они не содержат secret values. Secrets создаются вне git:
+
+- вручную через `kubectl`;
+- через CI/CD secret store;
+- через будущий secret manager, если он будет добавлен.
+
+## Контракт окружения `les13`
+
+Текущий deployment target:
+
+- namespace: `finguide`
+- overlay: `k8s/overlays/les13`
+- domain: `finguide.les13.tech`
+- ingress class: `nginx`
+- TLS issuer: `letsencrypt-prod`
+
+Обязательные secret names:
+
+- `finguide-api-secrets`
+- `finguide-web-secrets`
+- `keycloak-secrets`
+
+Secret values должны быть заведены до деплоя приложения.

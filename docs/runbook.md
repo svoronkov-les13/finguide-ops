@@ -1,18 +1,31 @@
 # Runbook
 
-## Deploy
+## Bootstrap Curie
 
-Use the `Deploy FinGuide` workflow from this repository.
+Запускать из корня `finguide-ops`:
 
-Inputs:
+```bash
+ansible-playbook -i ansible/inventories/prod/hosts.ini ansible/playbooks/bootstrap-kubernetes.yml
+```
 
-- `environment`: `demo`, `les13`, or `prod`
-- `api_image_tag`: API image tag in GHCR
-- `web_image_tag`: web image tag in GHCR
+Playbook делает следующее:
 
-The workflow renders the selected kustomize overlay, updates image tags, and applies it to the target cluster.
+- ставит k3s на `ops@161.104.36.83`;
+- пишет `/etc/rancher/k3s/config.yaml`;
+- отключает bundled Traefik и ServiceLB;
+- ставит ingress-nginx через Helm;
+- ставит cert-manager через Helm;
+- создает `letsencrypt-prod` ClusterIssuer;
+- копирует kubeconfig пользователю `ops`.
 
-## Manual Render
+Проверка после bootstrap:
+
+```bash
+ssh curie 'sudo k3s kubectl get nodes -o wide'
+ssh curie 'sudo k3s kubectl get pods -A'
+```
+
+## Ручной render overlays
 
 ```bash
 kubectl kustomize k8s/overlays/demo
@@ -20,45 +33,107 @@ kubectl kustomize k8s/overlays/les13
 kubectl kustomize k8s/overlays/prod
 ```
 
-## Bootstrap Curie
+## Deploy через GitHub Actions
 
-Run from this repository:
+Использовать workflow `Deploy FinGuide` из этого репозитория.
+
+Inputs:
+
+- `environment`: `demo`, `les13` или `prod`;
+- `api_image_tag`: tag API image в GHCR;
+- `web_image_tag`: tag web image в GHCR.
+
+Workflow рендерит выбранный kustomize overlay, подменяет image tags и применяет результат в target cluster.
+
+Для GitHub Actions нужен secret:
+
+- `KUBECONFIG_B64`: base64-encoded kubeconfig target cluster.
+
+## Ручной deploy
+
+Для `les13`:
 
 ```bash
-ansible-playbook -i ansible/inventories/prod/hosts.ini ansible/playbooks/bootstrap-kubernetes.yml
+kubectl apply -k k8s/overlays/les13
+kubectl -n finguide rollout status deployment/finguide-api --timeout=180s
+kubectl -n finguide rollout status deployment/finguide-web --timeout=180s
+kubectl -n finguide rollout status deployment/keycloak --timeout=180s
 ```
 
-This installs k3s on `ops@161.104.36.83`, writes `/etc/rancher/k3s/config.yaml`, disables bundled Traefik and ServiceLB, installs ingress-nginx, installs cert-manager, and creates the `letsencrypt-prod` ClusterIssuer.
+Для demo/prod использовать соответствующий overlay и namespace:
 
-## Health Checks
+```bash
+kubectl apply -k k8s/overlays/demo
+kubectl apply -k k8s/overlays/prod
+```
+
+## Health checks
+
+Для `les13`:
+
+```bash
+kubectl -n finguide get pods
+kubectl -n finguide get ingress
+kubectl -n finguide get certificate
+kubectl -n finguide rollout status deployment/finguide-api
+kubectl -n finguide rollout status deployment/finguide-web
+```
+
+Внешняя проверка:
+
+```bash
+curl -I https://finguide.les13.tech/
+curl -I https://finguide.les13.tech/auth/
+```
+
+Для demo:
 
 ```bash
 kubectl -n finguide-demo get pods
-kubectl -n finguide-demo rollout status deployment/finguide-api
-kubectl -n finguide-demo rollout status deployment/finguide-web
+kubectl -n finguide-demo rollout status deployment/finguide-api-demo
+kubectl -n finguide-demo rollout status deployment/finguide-web-demo
 ```
 
-For les13, use namespace `finguide` and deployments `finguide-api` / `finguide-web`. For production, replace `finguide-demo` with `finguide-prod`.
+Для prod заменить namespace на `finguide-prod` и deployment names на `finguide-api-prod` / `finguide-web-prod`.
 
 ## Logs
 
+Для `les13`:
+
 ```bash
-kubectl -n finguide-demo logs deployment/finguide-api --tail=100
-kubectl -n finguide-demo logs deployment/finguide-web --tail=100
+kubectl -n finguide logs deployment/finguide-api --tail=100
+kubectl -n finguide logs deployment/finguide-web --tail=100
+kubectl -n finguide logs deployment/keycloak --tail=100
+kubectl -n finguide logs deployment/keycloak-postgres --tail=100
 ```
 
 ## Rollback
 
+Для `les13`:
+
 ```bash
-kubectl -n finguide-demo rollout undo deployment/finguide-api
-kubectl -n finguide-demo rollout undo deployment/finguide-web
+kubectl -n finguide rollout undo deployment/finguide-api
+kubectl -n finguide rollout undo deployment/finguide-web
 ```
 
-For production, verify impact and database compatibility before rollback.
+Перед rollback production проверить совместимость database migrations и Keycloak state.
 
 ## Restart
 
+Для `les13`:
+
 ```bash
-kubectl -n finguide-demo rollout restart deployment/finguide-api
-kubectl -n finguide-demo rollout restart deployment/finguide-web
+kubectl -n finguide rollout restart deployment/finguide-api
+kubectl -n finguide rollout restart deployment/finguide-web
+kubectl -n finguide rollout restart deployment/keycloak
+```
+
+## Быстрая диагностика ingress/TLS
+
+```bash
+kubectl -n ingress-nginx get pods
+kubectl -n cert-manager get pods
+kubectl -n finguide describe ingress finguide
+kubectl -n finguide describe certificate finguide-les13-tls
+kubectl get clusterissuer letsencrypt-prod
 ```

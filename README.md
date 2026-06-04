@@ -1,57 +1,77 @@
 # FinGuide Ops
 
-Infrastructure, deployment, and runbooks for FinGuide.
+Инфраструктура, деплой и эксплуатационная документация FinGuide.
 
-Product code stays in the application repositories:
+Код продукта живет в отдельных репозиториях:
 
-- `finguide-be` builds and publishes the API image.
-- `finguide-web` builds and publishes the web image.
-- `finguide-ops` owns Kubernetes manifests, Helm charts, node bootstrap, environment documentation, and operational procedures.
+- `finguide-be` собирает и публикует образ API.
+- `finguide-web` собирает и публикует образ web-приложения.
+- `finguide-ops` хранит Kubernetes-манифесты, Helm-чарты, Ansible bootstrap, описание окружений и runbook'и.
 
-## Operating Model
+## Рабочая модель
 
-FinGuide is Kubernetes-first. Application services are not deployed through app-level `systemd` units. `systemd` may exist underneath Kubernetes, runners, or host services, but FinGuide API and web workloads run as Kubernetes workloads.
+FinGuide разворачивается через Kubernetes. Прикладные сервисы не запускаются как отдельные `systemd` units. `systemd` может использоваться ниже уровнем для Kubernetes, runner'ов или host-сервисов, но `finguide-api` и `finguide-web` работают как Kubernetes workloads.
 
-Images are published to GitHub Container Registry:
+Образы публикуются в GitHub Container Registry:
 
 - `ghcr.io/svoronkov-les13/finguide-api:<tag>`
 - `ghcr.io/svoronkov-les13/finguide-web:<tag>`
 
-Deployments are driven from this repository through GitHub Actions.
+Деплой запускается из этого репозитория через GitHub Actions.
 
-## Layout
+## Структура
 
 ```text
-docs/                  Architecture, environments, runbooks, recovery
-k8s/base/              Shared Kubernetes resources
-k8s/overlays/demo/     Demo environment customization
-k8s/overlays/les13/    Single-node Curie deployment for finguide.les13.tech
-k8s/overlays/prod/     Production environment customization
-k8s/platform/          Cluster-level resources such as cert-manager issuers
-helm/                  Helm chart skeletons for app and stack packaging
-ansible/               Host bootstrap for Kubernetes nodes
-scripts/               Local validation and operations helpers
+docs/                  Архитектура, окружения, runbook'и, восстановление
+k8s/base/              Общие Kubernetes-ресурсы
+k8s/overlays/demo/     Demo-окружение
+k8s/overlays/les13/    Single-node Curie для finguide.les13.tech
+k8s/overlays/prod/     Production-окружение
+k8s/platform/          Cluster-level ресурсы, например cert-manager issuers
+helm/                  Каркасы Helm-чартов для app и stack packaging
+ansible/               Bootstrap Kubernetes nodes и host-level операции
+scripts/               Локальные проверки и ops helpers
 .github/workflows/     CI/CD workflows
 ```
 
-## Quick Checks
+## Быстрые проверки
 
-Run the repository structure check:
+Проверить структуру репозитория:
 
 ```bash
 ./scripts/check-structure.sh
 ```
 
-Render the demo overlay when `kubectl` includes kustomize support:
+Отрендерить Kubernetes overlay:
 
 ```bash
 kubectl kustomize k8s/overlays/demo
 kubectl kustomize k8s/overlays/les13
+kubectl kustomize k8s/overlays/prod
 ```
 
-## First Deploy Shape
+Проверить Ansible playbook:
 
-1. `finguide-be` and `finguide-web` publish images to GHCR.
-2. This repository updates Kubernetes image tags.
-3. GitHub Actions deploys `k8s/overlays/demo` or `k8s/overlays/prod`.
-4. Ansible is used only for node bootstrap and host-level operations.
+```bash
+ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/playbooks/bootstrap-kubernetes.yml
+```
+
+## Текущая цель
+
+Основная целевая площадка сейчас:
+
+- host: `Curie`
+- IP: `161.104.36.83`
+- SSH user: `ops`
+- домен: `https://finguide.les13.tech`
+- Kubernetes: single-node k3s
+- ingress: ingress-nginx на host ports `80/443`
+- TLS: cert-manager + Let's Encrypt
+- storage: k3s local-path
+
+## Первый деплой
+
+1. `finguide-be` и `finguide-web` публикуют образы в GHCR.
+2. Этот репозиторий выбирает Kubernetes overlay и image tags.
+3. GitHub Actions деплоит `k8s/overlays/les13`, `demo` или `prod`.
+4. Ansible используется только для bootstrap node и host-level операций.
