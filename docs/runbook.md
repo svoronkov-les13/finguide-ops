@@ -2,6 +2,13 @@
 
 ## Bootstrap Curie
 
+После переустановки ОС у сервера меняется SSH host key. Если Ansible или SSH ругается на host key verification, обновить локальный `known_hosts`:
+
+```bash
+ssh-keygen -R 77.223.121.143
+ssh-keyscan -H 77.223.121.143 >> ~/.ssh/known_hosts
+```
+
 Запускать из корня `finguide-ops`:
 
 ```bash
@@ -10,19 +17,19 @@ ansible-playbook -i ansible/inventories/prod/hosts.ini ansible/playbooks/bootstr
 
 Playbook делает следующее:
 
-- ставит k3s на `ops@161.104.36.83`;
+- ставит k3s на `root@77.223.121.143`;
 - пишет `/etc/rancher/k3s/config.yaml`;
 - отключает bundled Traefik и ServiceLB;
 - ставит ingress-nginx через Helm;
 - ставит cert-manager через Helm;
 - создает `letsencrypt-prod` ClusterIssuer;
-- копирует kubeconfig пользователю `ops`.
+- копирует kubeconfig пользователю `root`.
 
 Проверка после bootstrap:
 
 ```bash
-ssh curie 'sudo k3s kubectl get nodes -o wide'
-ssh curie 'sudo k3s kubectl get pods -A'
+ssh root@77.223.121.143 'k3s kubectl get nodes -o wide'
+ssh root@77.223.121.143 'k3s kubectl get pods -A'
 ```
 
 ## Ручной render overlays

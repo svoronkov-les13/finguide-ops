@@ -38,24 +38,24 @@
 
 - name: Create deploy user's kubeconfig directory
   ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.kube"
+    path: "{{ k3s_kubeconfig_home }}/.kube"
     state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    owner: "{{ k3s_kubeconfig_user }}"
+    group: "{{ k3s_kubeconfig_user }}"
     mode: "0700"
 
 - name: Copy kubeconfig for deploy user
   ansible.builtin.copy:
     src: /etc/rancher/k3s/k3s.yaml
-    dest: "/home/{{ ansible_user }}/.kube/config"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
+    dest: "{{ k3s_kubeconfig_home }}/.kube/config"
+    owner: "{{ k3s_kubeconfig_user }}"
+    group: "{{ k3s_kubeconfig_user }}"
     mode: "0600"
     remote_src: true
 
 - name: Point kubeconfig at public API address
   ansible.builtin.replace:
-    path: "/home/{{ ansible_user }}/.kube/config"
+    path: "{{ k3s_kubeconfig_home }}/.kube/config"
     regexp: "https://127\\.0\\.0\\.1:6443"
     replace: "https://{{ k3s_public_ip }}:6443"
 

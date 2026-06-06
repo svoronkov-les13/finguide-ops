@@ -41,7 +41,7 @@ finguide-be / finguide-web
 
 ## Kubernetes distribution
 
-Текущая цель для `finguide.les13.tech` — single-node k3s на Curie (`161.104.36.83`).
+Текущая цель для `finguide.les13.tech` — single-node k3s на Curie (`77.223.121.143`).
 
 k3s запускается с такими принципами:
 
@@ -76,8 +76,21 @@ NodePort для публичного доступа не используетс�
 
 Secret values не коммитятся в git. В манифестах допускаются только имена secret'ов и ссылки на keys.
 
+## Terraform boundary
+
+Terraform сейчас не участвует в bootstrap k3s на Curie. Причина простая: Curie уже существует как сервер, а установка packages/k3s/Helm add-ons является host configuration, которую в этом репозитории делает Ansible.
+
+Terraform надо добавить, когда появятся ресурсы, которыми нужно владеть декларативно через provider:
+
+- создание или пересоздание cloud VM;
+- DNS records `finguide.les13.tech` / `finguide-dev.les13.tech`;
+- firewall/security group rules;
+- external volumes, object storage, registry или managed secrets.
+
+Если такой provider появится, Terraform должен создать/обновить инфраструктурные ресурсы, а затем передать inventory outputs в Ansible bootstrap.
+
 ## Не цели
 
 - Не разворачивать application services через `systemd`.
-- Не добавлять Terraform, пока нет cloud resources или repeatable provisioning поверх уже существующего Curie.
+- Не устанавливать k3s через Terraform remote-exec поверх уже существующего Curie.
 - Не хранить секреты в репозитории.

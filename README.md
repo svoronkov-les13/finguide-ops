@@ -36,6 +36,7 @@ k8s/overlays/prod/     Production-окружение
 k8s/platform/          Cluster-level ресурсы, например cert-manager issuers
 helm/                  Каркасы Helm-чартов для app и stack packaging
 ansible/               Bootstrap Kubernetes nodes и host-level операции
+terraform/             Заметки о Terraform boundary; сейчас cloud resources не управляются
 scripts/               Локальные проверки и ops helpers
 .github/workflows/     CI/CD workflows
 ```
@@ -68,14 +69,16 @@ ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/pl
 Основная целевая площадка сейчас:
 
 - host: `Curie`
-- IP: `161.104.36.83`
-- SSH user: `ops`
+- IP: `77.223.121.143`
+- SSH user: `root`
 - домен: `https://finguide.les13.tech`
 - dev-домен: `https://finguide-dev.les13.tech`
 - Kubernetes: single-node k3s
 - ingress: ingress-nginx на host ports `80/443`
 - TLS: cert-manager + Let's Encrypt
 - storage: k3s local-path
+
+Terraform сейчас не используется для установки k3s на Curie. Сервер уже существует, поэтому host bootstrap выполняется Ansible playbook'ом. Terraform стоит добавлять, когда репозиторий начнет управлять внешними ресурсами: VM, DNS, firewall/security groups, volumes или managed registry/secrets.
 
 ## Первый деплой
 

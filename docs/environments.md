@@ -31,8 +31,8 @@ Image tag policy:
 Host:
 
 - name: `curie`
-- IP: `161.104.36.83`
-- SSH user: `ops`
+- IP: `77.223.121.143`
+- SSH user: `root`
 
 Kubernetes:
 
@@ -77,7 +77,7 @@ Ingress:
 Host:
 
 - name: `curie`
-- IP: `161.104.36.83`
+- IP: `77.223.121.143`
 - DNS: `finguide-dev.les13.tech` должен указывать на тот же IP.
 
 Kubernetes namespace:
