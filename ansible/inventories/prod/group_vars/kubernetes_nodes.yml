@@ -12,8 +12,8 @@ k3s_disable_components:
   - traefik
   - servicelb
 k3s_write_kubeconfig_mode: "0640"
-k3s_kubeconfig_user: root
-k3s_kubeconfig_home: /root
+k3s_kubeconfig_user: ops
+k3s_kubeconfig_home: /home/ops
 k3s_system_reserved: cpu=500m,memory=1Gi
 k3s_kube_reserved: cpu=500m,memory=1Gi
 k3s_eviction_hard: memory.available<1Gi,nodefs.available<10%

@@ -7,6 +7,8 @@
 ```bash
 ssh-keygen -R 77.223.121.143
 ssh-keyscan -H 77.223.121.143 >> ~/.ssh/known_hosts
+ssh-keygen -R finguide.les13.tech
+ssh-keyscan -H finguide.les13.tech >> ~/.ssh/known_hosts
 ```
 
 Запускать из корня `finguide-ops`:
@@ -17,19 +19,19 @@ ansible-playbook -i ansible/inventories/prod/hosts.ini ansible/playbooks/bootstr
 
 Playbook делает следующее:
 
-- ставит k3s на `root@77.223.121.143`;
+- ставит k3s на `ops@finguide.les13.tech`;
 - пишет `/etc/rancher/k3s/config.yaml`;
 - отключает bundled Traefik и ServiceLB;
 - ставит ingress-nginx через Helm;
 - ставит cert-manager через Helm;
 - создает `letsencrypt-prod` ClusterIssuer;
-- копирует kubeconfig пользователю `root`.
+- копирует kubeconfig пользователю `ops`.
 
 Проверка после bootstrap:
 
 ```bash
-ssh root@77.223.121.143 'k3s kubectl get nodes -o wide'
-ssh root@77.223.121.143 'k3s kubectl get pods -A'
+ssh ops@finguide.les13.tech 'sudo k3s kubectl get nodes -o wide'
+ssh ops@finguide.les13.tech 'sudo k3s kubectl get pods -A'
 ```
 
 ## Ручной render overlays

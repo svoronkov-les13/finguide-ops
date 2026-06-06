@@ -23,10 +23,10 @@ Secret values нельзя коммитить в этот репозиторий
 1. Проверить доступ к host:
 
 ```bash
-ssh root@77.223.121.143
+ssh ops@finguide.les13.tech
 ```
 
-2. Проверить текущего bootstrap-пользователя. После переустановки ОС используется `root`; если позже вернется `ops`, обновить `ansible/inventories/prod/hosts.ini` и `k3s_kubeconfig_*` в group vars.
+2. Проверить текущего bootstrap-пользователя. Штатный пользователь для host-level операций — `ops` с passwordless sudo.
 
 3. Запустить bootstrap из `finguide-ops`:
 

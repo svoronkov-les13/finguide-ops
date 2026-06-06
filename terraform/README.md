@@ -4,7 +4,7 @@ Terraform пока не используется для установки k3s �
 
 Текущая модель:
 
-- существующий сервер Curie доступен по `root@77.223.121.143`;
+- существующий сервер Curie доступен по `ops@finguide.les13.tech`;
 - host bootstrap, установка k3s, ingress-nginx и cert-manager выполняются Ansible playbook'ом `ansible/playbooks/bootstrap-kubernetes.yml`;
 - Kubernetes workloads применяются через Kustomize overlays и GitHub Actions.
 
