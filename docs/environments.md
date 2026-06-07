@@ -143,8 +143,12 @@ Image tag policy:
 Эти secrets используются манифестами, но создаются вне git:
 
 - `finguide-api-secrets`
+  - `fg-api-db-password`
 - `finguide-web-secrets`
 - `keycloak-secrets`
+  - `db-password`
+  - `admin-username`
+  - `admin-password`
 
 Для `dev` используются такие же secret names, но в namespace `finguide-dev` и с отдельными dev-значениями.
 

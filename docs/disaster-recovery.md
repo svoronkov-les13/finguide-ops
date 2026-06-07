@@ -52,6 +52,7 @@ kubectl -n finguide get secrets
 6. Восстановить persistent data:
 
 - `finguide-api-data`
+- `finguide-api-postgres-data`
 - `keycloak-postgres-data`
 
 7. Применить overlay:
