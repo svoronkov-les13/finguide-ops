@@ -28,6 +28,12 @@ spec:
             - secretRef:
                 name: finguide-api-secrets
                 optional: true
+          env:
+            - name: FINGUIDE_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: finguide-api-secrets
+                  key: fg-api-db-password
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness

@@ -3,6 +3,7 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - finguide-api/deployment.yaml
+  - finguide-api/postgres.yaml
   - finguide-api/pvc.yaml
   - finguide-api/service.yaml
   - finguide-web/deployment.yaml

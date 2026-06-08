@@ -11,6 +11,7 @@ required_paths=(
   "k8s/base/kustomization.yaml"
   "k8s/base/namespace.yaml"
   "k8s/base/finguide-api/deployment.yaml"
+  "k8s/base/finguide-api/postgres.yaml"
   "k8s/base/finguide-api/pvc.yaml"
   "k8s/base/finguide-api/service.yaml"
   "k8s/base/finguide-web/deployment.yaml"

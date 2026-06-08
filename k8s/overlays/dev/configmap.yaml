@@ -4,8 +4,8 @@ metadata:
   name: finguide-api-config
 data:
   FINGUIDE_DEMO_MODE: "true"
-  FINGUIDE_DATASOURCE_URL: "jdbc:h2:file:/data/finguide-dev;MODE=PostgreSQL;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1"
-  FINGUIDE_DATASOURCE_USERNAME: "sa"
+  FINGUIDE_DATASOURCE_URL: "jdbc:postgresql://finguide-api-postgres-dev:5432/finguide"
+  FINGUIDE_DATASOURCE_USERNAME: "finguide"
   FINGUIDE_H2_CONSOLE_ENABLED: "false"
   KEYCLOAK_ISSUER_URI: "https://finguide-dev.les13.tech/auth/realms/finguide-dev"
   KEYCLOAK_AUDIENCE: "finguide-api"

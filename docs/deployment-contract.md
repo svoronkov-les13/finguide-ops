@@ -68,9 +68,9 @@ ConfigMaps можно коммитить, если они не содержат 
 
 Обязательные secret names:
 
-- `finguide-api-secrets`
+- `finguide-api-secrets` с key `fg-api-db-password`
 - `finguide-web-secrets`
-- `keycloak-secrets`
+- `keycloak-secrets` с keys `db-password`, `admin-username`, `admin-password`
 
 Secret values должны быть заведены до деплоя приложения.
 
@@ -89,8 +89,8 @@ Dev использует отдельный Keycloak и отдельный Postg
 
 Обязательные secret names в namespace `finguide-dev`:
 
-- `finguide-api-secrets`
+- `finguide-api-secrets` с key `fg-api-db-password`
 - `finguide-web-secrets`
-- `keycloak-secrets`
+- `keycloak-secrets` с keys `db-password`, `admin-username`, `admin-password`
 
 Имена такие же, как в `les13`, но namespace другой. Значения secret'ов должны быть dev-отдельными.
