@@ -8,7 +8,7 @@
 
 ## Что нужно бэкапить
 
-До production launch надо зафиксировать процедуры для:
+До публичного запуска надо зафиксировать процедуры для:
 
 - database dumps и retention policy;
 - Keycloak realm export и client configuration;
@@ -85,7 +85,7 @@ kubectl apply -k k8s/overlays/dev
 
 ## Drill checklist
 
-- [ ] Восстановить demo или les13 в чистый namespace/cluster.
+- [ ] Восстановить `les13` в чистый namespace/cluster.
 - [ ] Проверить API health endpoint.
 - [ ] Проверить, что web ходит в API.
 - [ ] Проверить login flow через Keycloak.

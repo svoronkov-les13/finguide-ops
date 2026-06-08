@@ -22,17 +22,15 @@ FinGuide разворачивается через Kubernetes. Прикладн�
 - `Deploy finguide-dev` раскатывает `k8s/overlays/dev` в namespace `finguide-dev`.
 - `Deploy finguide` раскатывает `k8s/overlays/les13` в namespace `finguide`.
 
-Workflow `Deploy FinGuide Overlay` оставлен как общий fallback для `demo`, `dev`, `les13` и `prod`.
+Заготовки `demo` и `prod` удалены. Сейчас поддерживаются только `dev` и `les13`.
 
 ## Структура
 
 ```text
 docs/                  Архитектура, окружения, runbook'и, восстановление
 k8s/base/              Общие Kubernetes-ресурсы
-k8s/overlays/demo/     Demo-окружение
 k8s/overlays/dev/      Dev-контур finguide-dev.les13.tech
 k8s/overlays/les13/    Single-node Curie для finguide.les13.tech
-k8s/overlays/prod/     Production-окружение
 k8s/platform/          Cluster-level ресурсы: cert-manager issuers, Kubernetes Dashboard
 helm/                  Каркасы Helm-чартов для app и stack packaging
 ansible/               Bootstrap Kubernetes nodes и host-level операции
@@ -52,10 +50,8 @@ scripts/               Локальные проверки и ops helpers
 Отрендерить Kubernetes overlay:
 
 ```bash
-kubectl kustomize k8s/overlays/demo
 kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/les13
-kubectl kustomize k8s/overlays/prod
 kubectl kustomize k8s/platform/kubernetes-dashboard
 ```
 

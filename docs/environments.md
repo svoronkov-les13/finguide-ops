@@ -1,26 +1,5 @@
 # Окружения
 
-## Demo
-
-Назначение:
-
-- Проверять application deployments перед production.
-- Обкатывать migrations, ingress rules и environment variables.
-- Держать стабильный preview target.
-
-Kubernetes namespace:
-
-- `finguide-demo`
-
-Overlay:
-
-- `k8s/overlays/demo`
-
-Image tag policy:
-
-- Обычно `main`, `develop` или short SHA.
-- Tag должен быть явным, чтобы деплой можно было воспроизвести.
-
 ## les13
 
 Назначение:
@@ -118,26 +97,6 @@ Ingress:
 - keycloak: `150m/512Mi` request, `700m/1Gi` limit
 - postgres: `50m/256Mi` request, `300m/512Mi` limit
 
-## Production
-
-Назначение:
-
-- Обслуживать real users.
-- Использовать pinned release tags или immutable SHAs.
-
-Kubernetes namespace:
-
-- `finguide-prod`
-
-Overlay:
-
-- `k8s/overlays/prod`
-
-Image tag policy:
-
-- Release tag или immutable SHA.
-- Не использовать mutable `latest`.
-
 ## Обязательные secrets
 
 Эти secrets используются манифестами, но создаются вне git:
@@ -162,3 +121,10 @@ Platform add-ons живут отдельно от application namespaces:
 - `kube-system` — k3s `HelmChart` resource, который управляет установкой Dashboard.
 
 Эти ресурсы не должны добавляться в overlays `k8s/overlays/*`, чтобы не смешивать cluster-level tooling с окружениями FinGuide.
+
+## Удаленные заготовки
+
+Заготовки окружений `demo` и `prod` удалены из репозитория. Сейчас поддерживаемые application overlays:
+
+- `k8s/overlays/dev`
+- `k8s/overlays/les13`

@@ -37,16 +37,14 @@ ssh ops@finguide.les13.tech 'sudo k3s kubectl get pods -A'
 ## Ручной render overlays
 
 ```bash
-kubectl kustomize k8s/overlays/demo
 kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/les13
-kubectl kustomize k8s/overlays/prod
 kubectl kustomize k8s/platform/kubernetes-dashboard
 ```
 
 ## Kubernetes Dashboard
 
-Dashboard ставится как platform add-on и не входит в `finguide`, `finguide-dev`, `finguide-demo` или `finguide-prod`.
+Dashboard ставится как platform add-on и не входит в `finguide` или `finguide-dev`.
 
 Применить манифесты:
 
@@ -96,8 +94,6 @@ Defaults:
 
 Workflow рендерит kustomize overlay, подменяет image tags, применяет результат в target cluster и ждет rollout `api`, `web` и соответствующего Keycloak.
 
-Workflow `Deploy FinGuide Overlay` оставлен как общий fallback для `demo`, `dev`, `les13` и `prod`.
-
 Для GitHub Actions нужен environment secret:
 
 - `KUBECONFIG_B64`: base64-encoded kubeconfig target cluster.
@@ -106,8 +102,6 @@ Secret должен быть заведен в GitHub Environments, которы
 
 - `dev` для `Deploy finguide-dev`;
 - `les13` для `Deploy finguide`.
-
-Если используется общий fallback workflow, такой же secret нужен в выбранном environment: `demo`, `dev`, `les13` или `prod`.
 
 ## Ручной deploy
 
@@ -137,13 +131,6 @@ KEYCLOAK_DEPLOYMENT=keycloak-dev \
 bash scripts/deploy-kustomize-overlay.sh
 ```
 
-Для demo/prod использовать соответствующий overlay и namespace:
-
-```bash
-kubectl apply -k k8s/overlays/demo
-kubectl apply -k k8s/overlays/prod
-```
-
 ## Health checks
 
 Для `les13`:
@@ -163,14 +150,6 @@ curl -I https://finguide.les13.tech/
 curl -I https://finguide.les13.tech/auth/
 ```
 
-Для demo:
-
-```bash
-kubectl -n finguide-demo get pods
-kubectl -n finguide-demo rollout status deployment/finguide-api-demo
-kubectl -n finguide-demo rollout status deployment/finguide-web-demo
-```
-
 Для dev:
 
 ```bash
@@ -181,8 +160,6 @@ kubectl -n finguide-dev get certificate
 curl -I https://finguide-dev.les13.tech/
 curl -I https://finguide-dev.les13.tech/auth/
 ```
-
-Для prod заменить namespace на `finguide-prod` и deployment names на `finguide-api-prod` / `finguide-web-prod`.
 
 ## Logs
 
@@ -206,7 +183,7 @@ kubectl -n finguide rollout undo deployment/finguide-api
 kubectl -n finguide rollout undo deployment/finguide-web
 ```
 
-Перед rollback production проверить совместимость database migrations и Keycloak state.
+Перед rollback проверить совместимость database migrations и Keycloak state.
 Для dev допустимо чаще пересоздавать namespace целиком, если состояние не нужно сохранять.
 
 ## Restart
