@@ -153,3 +153,12 @@ Image tag policy:
 Для `dev` используются такие же secret names, но в namespace `finguide-dev` и с отдельными dev-значениями.
 
 Значения secret'ов нельзя коммитить. Список обязательных keys надо дополнять здесь по мере стабилизации приложения.
+
+## Platform namespaces
+
+Platform add-ons живут отдельно от application namespaces:
+
+- `kubernetes-dashboard` — Kubernetes Dashboard и service account для token-login.
+- `kube-system` — k3s `HelmChart` resource, который управляет установкой Dashboard.
+
+Эти ресурсы не должны добавляться в overlays `k8s/overlays/*`, чтобы не смешивать cluster-level tooling с окружениями FinGuide.

@@ -38,6 +38,7 @@ finguide-be / finguide-web
 - `finguide-stack`: umbrella Helm chart для установки app-компонентов вместе.
 - `ingress-nginx`: входящий HTTP/HTTPS traffic.
 - `cert-manager`: выпуск TLS-сертификатов Let's Encrypt.
+- `kubernetes-dashboard`: cluster-level dashboard в отдельном namespace `kubernetes-dashboard`.
 
 ## Kubernetes distribution
 
@@ -71,6 +72,15 @@ k3s запускается с такими принципами:
 Dev-контур живет в отдельном namespace `finguide-dev`, имеет отдельный Keycloak realm `finguide-dev`, отдельный Keycloak/Postgres и ограничен `ResourceQuota`/`LimitRange`.
 
 NodePort для публичного доступа не используется. Наружу должны быть открыты только `22`, `80`, `443`; `6443` нужен только для администрирования и CI/CD.
+
+## Platform add-ons
+
+Platform-манифесты лежат отдельно от application overlays и не устанавливаются в `finguide*` namespaces.
+
+- `k8s/platform/cert-manager`: cluster issuer для TLS.
+- `k8s/platform/kubernetes-dashboard`: k3s `HelmChart`, который ставит Kubernetes Dashboard в namespace `kubernetes-dashboard`.
+
+Kubernetes Dashboard не имеет публичного ingress в git-манифестах. Доступ предполагается через `kubectl port-forward` и token отдельного service account.
 
 ## Secrets
 

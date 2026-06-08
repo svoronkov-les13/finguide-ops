@@ -41,7 +41,41 @@ kubectl kustomize k8s/overlays/demo
 kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/les13
 kubectl kustomize k8s/overlays/prod
+kubectl kustomize k8s/platform/kubernetes-dashboard
 ```
+
+## Kubernetes Dashboard
+
+Dashboard ставится как platform add-on и не входит в `finguide`, `finguide-dev`, `finguide-demo` или `finguide-prod`.
+
+Применить манифесты:
+
+```bash
+kubectl apply -k k8s/platform/kubernetes-dashboard
+```
+
+Проверить установку через k3s Helm controller:
+
+```bash
+kubectl -n kube-system get helmchart kubernetes-dashboard
+kubectl -n kubernetes-dashboard get pods,svc
+```
+
+Получить token для входа:
+
+```bash
+kubectl -n kubernetes-dashboard create token kubernetes-dashboard-admin
+```
+
+Этот token дает `cluster-admin`; не сохранять его в git, chat logs или CI secrets без явной необходимости.
+
+Открыть локальный доступ:
+
+```bash
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+```
+
+После этого открыть `https://localhost:8443/` и войти с token.
 
 ## Deploy через GitHub Actions
 
