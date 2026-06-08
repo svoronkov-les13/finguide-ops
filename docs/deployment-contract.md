@@ -28,7 +28,7 @@ ghcr.io/svoronkov-les13/finguide-api:<tag>
 ghcr.io/svoronkov-les13/finguide-web:<tag>
 ```
 
-Для production лучше использовать immutable tags: release tag или SHA. Для `les13` допустим tag `les13`, если он осознанно используется как текущий deploy target.
+Для релизных деплоев лучше использовать immutable tags: release tag или SHA. Для `les13` допустим tag `les13`, если он осознанно используется как текущий deploy target.
 Для `dev` по умолчанию используется tag `dev`; для отладки конкретной сборки можно передавать short SHA через workflow inputs.
 
 ## GitHub Actions deploy contract
@@ -44,7 +44,7 @@ ghcr.io/svoronkov-les13/finguide-web:<tag>
 
 - `KUBECONFIG_B64`: kubeconfig target cluster в base64.
 
-Workflow `Deploy FinGuide Overlay` используется как общий fallback для ручного деплоя любого overlay из списка `demo`, `dev`, `les13`, `prod`.
+Заготовки `demo` и `prod` удалены. Поддерживаемые application overlays сейчас: `dev` и `les13`.
 
 ## Runtime configuration
 

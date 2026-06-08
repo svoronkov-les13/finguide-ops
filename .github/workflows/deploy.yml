@@ -8,10 +8,8 @@ on:
         required: true
         type: choice
         options:
-          - demo
           - dev
           - les13
-          - prod
       api_image_tag:
         description: API image tag
         required: true
@@ -66,12 +64,6 @@ jobs:
               export API_DEPLOYMENT="finguide-api-dev"
               export WEB_DEPLOYMENT="finguide-web-dev"
               export KEYCLOAK_DEPLOYMENT="keycloak-dev"
-              ;;
-            *)
-              export NAMESPACE="finguide-${ENVIRONMENT}"
-              export API_DEPLOYMENT="finguide-api-${ENVIRONMENT}"
-              export WEB_DEPLOYMENT="finguide-web-${ENVIRONMENT}"
-              export KEYCLOAK_DEPLOYMENT=""
               ;;
           esac
 
