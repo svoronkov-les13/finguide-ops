@@ -33,7 +33,7 @@ k8s/overlays/demo/     Demo-окружение
 k8s/overlays/dev/      Dev-контур finguide-dev.les13.tech
 k8s/overlays/les13/    Single-node Curie для finguide.les13.tech
 k8s/overlays/prod/     Production-окружение
-k8s/platform/          Cluster-level ресурсы, например cert-manager issuers
+k8s/platform/          Cluster-level ресурсы: cert-manager issuers, Kubernetes Dashboard
 helm/                  Каркасы Helm-чартов для app и stack packaging
 ansible/               Bootstrap Kubernetes nodes и host-level операции
 terraform/             Заметки о Terraform boundary; сейчас cloud resources не управляются
@@ -56,6 +56,7 @@ kubectl kustomize k8s/overlays/demo
 kubectl kustomize k8s/overlays/dev
 kubectl kustomize k8s/overlays/les13
 kubectl kustomize k8s/overlays/prod
+kubectl kustomize k8s/platform/kubernetes-dashboard
 ```
 
 Проверить Ansible playbook:

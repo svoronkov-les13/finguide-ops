@@ -1,0 +1,24 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: kubernetes-dashboard
+  namespace: kube-system
+spec:
+  chart: kubernetes-dashboard
+  repo: https://kubernetes-retired.github.io/dashboard
+  version: 7.14.0
+  targetNamespace: kubernetes-dashboard
+  createNamespace: true
+  valuesContent: |-
+    app:
+      settings:
+        global:
+          clusterName: finguide-les13
+      ingress:
+        enabled: false
+    cert-manager:
+      enabled: false
+    metrics-server:
+      enabled: false
+    nginx:
+      enabled: false
