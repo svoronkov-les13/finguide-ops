@@ -75,6 +75,13 @@ kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy
 
 После этого открыть `https://localhost:8443/` и войти с token.
 
+На Curie порт `8443` уже занят `ingress-nginx`, поэтому `https://finguide.les13.tech:8443/` не является Dashboard URL и может вернуть `400`. Если port-forward запускается прямо на Curie, использовать свободный локальный порт:
+
+```bash
+kubectl -n kubernetes-dashboard port-forward --address 127.0.0.1 svc/kubernetes-dashboard-kong-proxy 10443:443
+curl -k https://127.0.0.1:10443/
+```
+
 ## Deploy через GitHub Actions
 
 Для основных площадок использовать отдельные ручные workflows из этого репозитория:
