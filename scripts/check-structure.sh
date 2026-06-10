@@ -53,6 +53,7 @@ required_paths=(
   "ansible/roles/kubernetes-node/tasks/main.yml"
   "ansible/roles/kubernetes-node/templates/k3s-config.yaml.j2"
   "scripts/deploy-kustomize-overlay.sh"
+  "scripts/apply-runtime-secrets.sh"
   ".github/workflows/deploy.yml"
   ".github/workflows/deploy-finguide.yml"
   ".github/workflows/deploy-finguide-dev.yml"
