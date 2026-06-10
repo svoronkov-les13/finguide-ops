@@ -41,6 +41,17 @@ jobs:
           echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
 
+      - name: Apply runtime secrets
+        env:
+          NAMESPACE: finguide-dev
+          FINGUIDE_API_DB_PASSWORD: ${{ secrets.FINGUIDE_API_DB_PASSWORD }}
+          KEYCLOAK_DB_PASSWORD: ${{ secrets.KEYCLOAK_DB_PASSWORD }}
+          KEYCLOAK_ADMIN_USERNAME: ${{ secrets.KEYCLOAK_ADMIN_USERNAME }}
+          KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: bash scripts/apply-runtime-secrets.sh
+
       - name: Deploy finguide-dev
         env:
           OVERLAY: k8s/overlays/dev

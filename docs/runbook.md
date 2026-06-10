@@ -104,6 +104,11 @@ Workflow рендерит kustomize overlay, подменяет image tags, пр
 Для GitHub Actions нужен environment secret:
 
 - `KUBECONFIG_B64`: base64-encoded kubeconfig target cluster.
+- `FINGUIDE_API_DB_PASSWORD`: пароль PostgreSQL для `finguide-api`.
+- `KEYCLOAK_DB_PASSWORD`: пароль PostgreSQL для Keycloak.
+- `KEYCLOAK_ADMIN_USERNAME`: bootstrap admin username Keycloak.
+- `KEYCLOAK_ADMIN_PASSWORD`: bootstrap admin password Keycloak.
+- `GHCR_USERNAME` / `GHCR_TOKEN`: опционально, если GHCR images остаются private.
 
 Secret должен быть заведен в GitHub Environments, которые использует workflow:
 

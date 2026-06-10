@@ -43,6 +43,11 @@ ghcr.io/svoronkov-les13/finguide-web:<tag>
 Обязательный GitHub Actions secret в каждом target environment:
 
 - `KUBECONFIG_B64`: kubeconfig target cluster в base64.
+- `FINGUIDE_API_DB_PASSWORD`: значение key `fg-api-db-password`.
+- `KEYCLOAK_DB_PASSWORD`: значение key `db-password`.
+- `KEYCLOAK_ADMIN_USERNAME`: значение key `admin-username`.
+- `KEYCLOAK_ADMIN_PASSWORD`: значение key `admin-password`.
+- `GHCR_USERNAME` / `GHCR_TOKEN`: опционально для private GHCR pull через `ghcr-pull-secret`.
 
 Заготовки `demo` и `prod` удалены. Поддерживаемые application overlays сейчас: `dev` и `les13`.
 

@@ -45,27 +45,39 @@ jobs:
           echo "$KUBECONFIG_B64" | base64 -d > "$HOME/.kube/config"
           chmod 600 "$HOME/.kube/config"
 
-      - name: Deploy overlay
+      - name: Select deployment target
         env:
           ENVIRONMENT: ${{ inputs.environment }}
-          API_IMAGE_TAG: ${{ inputs.api_image_tag }}
-          WEB_IMAGE_TAG: ${{ inputs.web_image_tag }}
         run: |
           set -euo pipefail
           case "$ENVIRONMENT" in
             les13)
-              export NAMESPACE="finguide"
-              export API_DEPLOYMENT="finguide-api"
-              export WEB_DEPLOYMENT="finguide-web"
-              export KEYCLOAK_DEPLOYMENT="keycloak"
+              echo "NAMESPACE=finguide" >> "$GITHUB_ENV"
+              echo "API_DEPLOYMENT=finguide-api" >> "$GITHUB_ENV"
+              echo "WEB_DEPLOYMENT=finguide-web" >> "$GITHUB_ENV"
+              echo "KEYCLOAK_DEPLOYMENT=keycloak" >> "$GITHUB_ENV"
               ;;
             dev)
-              export NAMESPACE="finguide-dev"
-              export API_DEPLOYMENT="finguide-api-dev"
-              export WEB_DEPLOYMENT="finguide-web-dev"
-              export KEYCLOAK_DEPLOYMENT="keycloak-dev"
+              echo "NAMESPACE=finguide-dev" >> "$GITHUB_ENV"
+              echo "API_DEPLOYMENT=finguide-api-dev" >> "$GITHUB_ENV"
+              echo "WEB_DEPLOYMENT=finguide-web-dev" >> "$GITHUB_ENV"
+              echo "KEYCLOAK_DEPLOYMENT=keycloak-dev" >> "$GITHUB_ENV"
               ;;
           esac
+          echo "OVERLAY=k8s/overlays/${ENVIRONMENT}" >> "$GITHUB_ENV"
 
-          export OVERLAY="k8s/overlays/${ENVIRONMENT}"
-          bash scripts/deploy-kustomize-overlay.sh
+      - name: Apply runtime secrets
+        env:
+          FINGUIDE_API_DB_PASSWORD: ${{ secrets.FINGUIDE_API_DB_PASSWORD }}
+          KEYCLOAK_DB_PASSWORD: ${{ secrets.KEYCLOAK_DB_PASSWORD }}
+          KEYCLOAK_ADMIN_USERNAME: ${{ secrets.KEYCLOAK_ADMIN_USERNAME }}
+          KEYCLOAK_ADMIN_PASSWORD: ${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: bash scripts/apply-runtime-secrets.sh
+
+      - name: Deploy overlay
+        env:
+          API_IMAGE_TAG: ${{ inputs.api_image_tag }}
+          WEB_IMAGE_TAG: ${{ inputs.web_image_tag }}
+        run: bash scripts/deploy-kustomize-overlay.sh
