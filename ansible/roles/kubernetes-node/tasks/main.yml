@@ -1,4 +1,10 @@
 ---
+
+# в начале tasks/main.yml
+- name: Uninstall k3s
+  ansible.builtin.import_tasks: uninstall.yml
+  tags: [never, uninstall]
+
 - name: Install Kubernetes host packages
   ansible.builtin.apt:
     name:

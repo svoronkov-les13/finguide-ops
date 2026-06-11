@@ -1,5 +1,16 @@
 # Runbook
 
+Удаление кубера. В начале tasks/main.yml
+```yaml
+- name: Uninstall k3s
+  ansible.builtin.import_tasks: uninstall.yml
+  tags: [never, uninstall]
+```
+И тогда запускать так:
+```bash
+  ansible-playbook bootstrap-kubernetes.yml --tags uninstall,all
+```
+
 ## Генерация сикретов
 
 ```bash
