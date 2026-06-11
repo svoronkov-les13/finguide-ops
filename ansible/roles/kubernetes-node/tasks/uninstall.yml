@@ -1,0 +1,21 @@
+---
+- name: Run k3s uninstall script
+  ansible.builtin.shell: /usr/local/bin/k3s-uninstall.sh
+  args:
+    executable: /bin/bash
+    removes: /usr/local/bin/k3s-uninstall.sh
+
+- name: Remove Helm binary
+  ansible.builtin.file:
+    path: /usr/local/bin/helm
+    state: absent
+
+- name: Remove kubeconfig for deploy user
+  ansible.builtin.file:
+    path: "{{ k3s_kubeconfig_home }}/.kube"
+    state: absent
+
+- name: Remove k3s config directory
+  ansible.builtin.file:
+    path: /etc/rancher/k3s
+    state: absent

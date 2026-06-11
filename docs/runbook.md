@@ -1,5 +1,20 @@
 # Runbook
 
+## Генерация сикретов
+
+```bash
+# пароли БД — генерим и сразу кладём, без спецсимволов, чтобы не ломать connection strings
+LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32 | gh secret set FINGUIDE_API_DB_PASSWORD
+LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32 | gh secret set KEYCLOAK_DB_PASSWORD
+LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32 | gh secret set KEYCLOAK_ADMIN_PASSWORD
+
+# admin username — вводишь руками
+gh secret set KEYCLOAK_ADMIN_USERNAME
+
+# GHCR token
+gh secret set GHCR_TOKEN
+```
+
 ## Bootstrap Curie
 
 После переустановки ОС у сервера меняется SSH host key. Если Ansible или SSH ругается на host key verification, обновить локальный `known_hosts`:
