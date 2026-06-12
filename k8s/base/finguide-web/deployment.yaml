@@ -17,7 +17,7 @@ spec:
       containers:
         - name: web
           image: ghcr.io/svoronkov-les13/finguide-web:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           ports:
             - name: http
               containerPort: 8080
