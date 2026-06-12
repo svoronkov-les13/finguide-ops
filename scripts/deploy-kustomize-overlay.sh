@@ -32,6 +32,9 @@ kubectl kustomize "$OVERLAY" \
   | sed "s#ghcr.io/svoronkov-les13/finguide-web:[^[:space:]]*#ghcr.io/svoronkov-les13/finguide-web:${WEB_IMAGE_TAG}#g" \
   | kubectl apply -f -
 
+kubectl -n "$NAMESPACE" rollout restart deployment/"$API_DEPLOYMENT"
+kubectl -n "$NAMESPACE" rollout restart deployment/"$WEB_DEPLOYMENT"
+
 kubectl -n "$NAMESPACE" rollout status deployment/"$API_DEPLOYMENT" --timeout=180s
 kubectl -n "$NAMESPACE" rollout status deployment/"$WEB_DEPLOYMENT" --timeout=180s
 
