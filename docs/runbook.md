@@ -26,6 +26,14 @@ gh secret set KEYCLOAK_ADMIN_USERNAME
 gh secret set GHCR_TOKEN
 ```
 
+## Сохранение KUBECONFIG_B64
+```bash
+ssh root@finguide.les13.tech 'sudo cat /etc/rancher/k3s/k3s.yaml' \
+  | sed 's#https://127.0.0.1:6443#https://77.223.121.143:6443#' \
+  | base64 | tr -d '
+' | gh secret set KUBECONFIG_B64
+```
+
 ## Bootstrap Curie
 
 После переустановки ОС у сервера меняется SSH host key. Если Ansible или SSH ругается на host key verification, обновить локальный `known_hosts`:

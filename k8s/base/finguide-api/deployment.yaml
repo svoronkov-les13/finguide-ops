@@ -34,6 +34,8 @@ spec:
                 secretKeyRef:
                   name: finguide-api-secrets
                   key: fg-api-db-password
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
