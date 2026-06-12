@@ -14,6 +14,7 @@
 - Keycloak realm export и client configuration;
 - Kubernetes secrets backup;
 - persistent volumes backup;
+- решение по backup observability PVC: `loki-grafana` хранит диагностические логи, но не является source of truth для приложения;
 - GitHub Actions secrets inventory.
 
 Secret values нельзя коммитить в этот репозиторий.
@@ -77,11 +78,20 @@ kubectl apply -k k8s/overlays/dev
 ## Общий порядок восстановления
 
 1. Починить или заново подготовить Kubernetes node.
-2. Восстановить cluster add-ons: ingress-nginx, cert-manager, storage.
+2. Восстановить cluster add-ons: ingress-nginx, cert-manager, storage, Dashboard и observability.
 3. Восстановить namespaces и secrets.
 4. Восстановить database и identity provider state.
 5. Задеплоить FinGuide из `finguide-ops`.
 6. Выполнить health checks из `docs/runbook.md`.
+
+Platform add-ons из git:
+
+```bash
+kubectl apply -k k8s/platform/kubernetes-dashboard
+kubectl apply -k k8s/platform/loki-grafana
+```
+
+Loki logs можно не восстанавливать, если задача — вернуть приложение в работу. Восстанавливать PVC `loki-grafana` имеет смысл только если нужны старые диагностические логи для расследования.
 
 ## Drill checklist
 
