@@ -78,11 +78,12 @@ spec:
               readOnly: true
           resources:
             requests:
-              cpu: 200m
-              memory: 768Mi
+              cpu: 500m
+              memory: 1Gi
             limits:
-              cpu: "1"
-              memory: 1536Mi
+              cpu: "2"
+              memory: 3Gi
+
       volumes:
         - name: realm
           configMap:
