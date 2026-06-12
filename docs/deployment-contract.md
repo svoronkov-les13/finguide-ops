@@ -19,6 +19,7 @@
 - Helm packaging;
 - GitHub Actions deployment workflows;
 - Ansible bootstrap для Kubernetes node;
+- platform add-ons в `k8s/platform/*`, включая Dashboard и observability;
 - operational docs и runbook'и.
 
 ## Имена образов

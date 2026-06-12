@@ -1,0 +1,23 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: promtail
+  namespace: kube-system
+spec:
+  chart: promtail
+  repo: https://grafana.github.io/helm-charts
+  version: 6.17.1
+  targetNamespace: loki-grafana
+  createNamespace: false
+  valuesContent: |-
+    config:
+      clients:
+        - url: http://loki:3100/loki/api/v1/push
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 300m
+        memory: 256Mi

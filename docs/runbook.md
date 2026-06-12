@@ -118,6 +118,48 @@ kubectl -n kubernetes-dashboard port-forward --address 127.0.0.1 svc/kubernetes-
 curl -k https://127.0.0.1:10443/
 ```
 
+## Loki / Grafana
+
+Loki, Promtail и Grafana ставятся как platform add-on в отдельный namespace `loki-grafana`. Они не входят в application overlays `finguide` или `finguide-dev`.
+
+Применить манифесты:
+
+```bash
+kubectl apply -k k8s/platform/loki-grafana
+```
+
+Проверить установку через k3s Helm controller:
+
+```bash
+kubectl -n kube-system get helmchart loki promtail grafana
+kubectl -n loki-grafana get pods,svc,pvc
+```
+
+Grafana не публикуется наружу через ingress. Для доступа использовать port-forward:
+
+```bash
+kubectl -n loki-grafana port-forward svc/grafana 3000:80
+```
+
+После этого открыть `http://localhost:3000/`.
+
+Получить admin password:
+
+```bash
+kubectl -n loki-grafana get secret grafana \
+  -o jsonpath='{.data.admin-password}' | base64 -d
+```
+
+Логин по умолчанию:
+
+```text
+admin
+```
+
+Datasource `Loki` создается через Grafana chart и смотрит на `http://loki:3100` внутри namespace `loki-grafana`.
+
+Loki сейчас настроен в single-binary режиме с PVC `10Gi` и retention `168h`. Это подходит для single-node Curie и быстрой диагностики application logs. Если появится long-term observability или несколько нод, надо отдельно спроектировать object storage, retention и backup policy.
+
 ## Deploy через GitHub Actions
 
 Для основных площадок использовать отдельные ручные workflows из этого репозитория:

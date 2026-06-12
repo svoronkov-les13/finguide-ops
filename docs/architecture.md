@@ -40,6 +40,7 @@ finguide-be / finguide-web
 - `ingress-nginx`: входящий HTTP/HTTPS traffic.
 - `cert-manager`: выпуск TLS-сертификатов Let's Encrypt.
 - `kubernetes-dashboard`: cluster-level dashboard в отдельном namespace `kubernetes-dashboard`.
+- `loki`, `promtail`, `grafana`: cluster-level observability в отдельном namespace `loki-grafana`.
 
 ## Kubernetes distribution
 
@@ -83,8 +84,11 @@ Platform-манифесты лежат отдельно от application overlay
 
 - `k8s/platform/cert-manager`: cluster issuer для TLS.
 - `k8s/platform/kubernetes-dashboard`: k3s `HelmChart`, который ставит Kubernetes Dashboard в namespace `kubernetes-dashboard`.
+- `k8s/platform/loki-grafana`: k3s `HelmChart` resources для Loki, Promtail и Grafana в namespace `loki-grafana`.
 
 Kubernetes Dashboard не имеет публичного ingress в git-манифестах. Доступ предполагается через `kubectl port-forward` и token отдельного service account.
+
+Grafana тоже не имеет публичного ingress в git-манифестах. Доступ предполагается через `kubectl port-forward`; admin password генерируется chart'ом и хранится в Kubernetes Secret в namespace `loki-grafana`. Loki запускается в single-binary режиме с filesystem storage на k3s local-path PVC, а Promtail собирает pod logs со всех namespaces.
 
 ## Secrets
 
