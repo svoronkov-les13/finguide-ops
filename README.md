@@ -24,6 +24,14 @@ FinGuide разворачивается через Kubernetes. Прикладн�
 
 Заготовки `demo` и `prod` удалены. Сейчас поддерживаются только `dev` и `les13`.
 
+## Документация и GitHub Pages
+
+Этот репозиторий хранит operational docs в `docs/`, но отдельный GitHub Pages workflow здесь сейчас не настроен. Публичная MkDocs-документация проекта публикуется из `finguide-be`:
+
+- https://svoronkov-les13.github.io/finguide-be/
+
+При изменении Kubernetes manifests, deploy workflows, ingress, secrets или runbook'ов нужно обновлять документацию здесь и, если меняется внешний contract backend/frontend, синхронизировать страницы в `finguide-be`.
+
 ## Структура
 
 ```text
@@ -67,7 +75,7 @@ ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/pl
 
 - host: `Curie`
 - IP: `77.223.121.143`
-- SSH user: `root`
+- SSH user: `ops` для обычных операций, `root` только если нужен прямой break-glass доступ
 - домен: `https://finguide.les13.tech`
 - dev-домен: `https://finguide-dev.les13.tech`
 - Kubernetes: single-node k3s
@@ -82,4 +90,5 @@ Terraform сейчас не используется для установки k
 1. `finguide-be` и `finguide-web` публикуют образы в GHCR.
 2. В `finguide-ops` запускается нужный deploy workflow и передаются image tags.
 3. GitHub Actions рендерит overlay, подменяет tags и применяет манифесты в cluster.
-4. Ansible используется только для bootstrap node и host-level операций.
+4. Backend работает под context path `/finguide-api`, Keycloak под `/auth`, frontend под `/fg/` (`/` редиректит на `/fg/`).
+5. Ansible используется только для bootstrap node и host-level операций.
