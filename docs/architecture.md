@@ -30,6 +30,7 @@ finguide-be / finguide-web
 ## Runtime-компоненты
 
 - `finguide-api`: backend API Deployment и Service.
+- `finguide-api-postgres`: PostgreSQL 16 для backend данных FinGuide.
 - `finguide-web`: frontend Deployment и Service.
 - `keycloak`: identity provider для `les13`.
 - `keycloak-postgres`: PostgreSQL для Keycloak на single-node площадке.
@@ -59,7 +60,8 @@ k3s запускается с такими принципами:
 
 Для `les13` внешний вход один:
 
-- `https://finguide.les13.tech/` -> `finguide-web`
+- `https://finguide.les13.tech/` -> `finguide-web`, редирект на `/fg/`
+- `https://finguide.les13.tech/fg/` -> `finguide-web`
 - `https://finguide.les13.tech/finguide-api` -> `finguide-api`
 - `https://finguide.les13.tech/auth` -> `keycloak`
 
@@ -70,6 +72,8 @@ k3s запускается с такими принципами:
 - `https://finguide-dev.les13.tech/auth` -> `keycloak-dev`
 
 Dev-контур живет в отдельном namespace `finguide-dev`, имеет отдельный Keycloak realm `finguide-dev`, отдельный Keycloak/Postgres и ограничен `ResourceQuota`/`LimitRange`.
+
+Ingress не делает rewrite для `/finguide-api`: Spring Boot backend сам запущен с `server.servlet.context-path=/finguide-api`, поэтому probes, Swagger и API endpoints тоже живут под этим prefix. Если когда-либо переносить prefix stripping в ingress, API path надо вынести в отдельный Ingress resource, потому что annotation `nginx.ingress.kubernetes.io/rewrite-target` применяется ко всему объекту и может сломать `/auth` или `/`.
 
 NodePort для публичного доступа не используется. Наружу должны быть открыты только `22`, `80`, `443`; `6443` нужен только для администрирования и CI/CD.
 
@@ -85,6 +89,12 @@ Kubernetes Dashboard не имеет публичного ingress в git-ман�
 ## Secrets
 
 Secret values не коммитятся в git. В манифестах допускаются только имена secret'ов и ссылки на keys.
+
+Keycloak admin console для `les13` доступен по:
+
+- `https://finguide.les13.tech/auth/admin/master/console/`
+
+Admin username/password лежат в Kubernetes Secret `keycloak-secrets` keys `admin-username` и `admin-password`. Не переносить реальные значения в git, README, issues или Pages.
 
 ## Terraform boundary
 

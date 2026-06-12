@@ -11,7 +11,7 @@ Host:
 
 - name: `curie`
 - IP: `77.223.121.143`
-- SSH user: `root`
+- SSH user: `ops` для стандартных операций; `root` только для break-glass/первичного восстановления
 
 Kubernetes:
 
@@ -41,9 +41,18 @@ Image tag policy:
 
 Ingress:
 
-- `https://finguide.les13.tech/` -> `finguide-web`
-- `https://finguide.les13.tech/finguide-api` -> `finguide-api`
+- `https://finguide.les13.tech/` -> `finguide-web`, редирект на `/fg/`
+- `https://finguide.les13.tech/fg/` -> `finguide-web`
+- `https://finguide.les13.tech/finguide-api` -> `finguide-api`; backend context path тоже `/finguide-api`, ingress prefix не срезает
 - `https://finguide.les13.tech/auth` -> `keycloak`
+
+Runtime:
+
+- API profile: `prod`
+- API database: `jdbc:postgresql://finguide-api-postgres:5432/finguide`
+- API schema owner/user: `finguide`
+- API schema migrations: Liquibase из backend image
+- Keycloak admin console: `https://finguide.les13.tech/auth/admin/master/console/`
 
 ## Dev
 
@@ -96,6 +105,8 @@ Ingress:
 - web: `25m/64Mi` request, `150m/128Mi` limit
 - keycloak: `150m/512Mi` request, `700m/1Gi` limit
 - postgres: `50m/256Mi` request, `300m/512Mi` limit
+
+`les13` не ограничен dev quota. Base manifest сейчас даёт `keycloak` `500m/1Gi` request и `2 CPU/3Gi` limit, потому что Keycloak 26 может делать Quarkus augmentation на старте и иначе уходить в OOMKilled. API base limit сейчас `2 CPU/1536Mi`, request `100m/512Mi`.
 
 ## Обязательные secrets
 

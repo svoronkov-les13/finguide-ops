@@ -61,6 +61,15 @@ ConfigMaps можно коммитить, если они не содержат 
 - через CI/CD secret store;
 - через будущий secret manager, если он будет добавлен.
 
+Backend API в Kubernetes ожидает, что application context path уже равен `/finguide-api`. Текущий ingress для `les13` и `dev` прокидывает prefix как есть и не делает rewrite. Поэтому:
+
+- публичный base URL: `https://finguide.les13.tech/finguide-api`;
+- API base: `https://finguide.les13.tech/finguide-api/api/v1`;
+- actuator: `https://finguide.les13.tech/finguide-api/actuator/health`;
+- Swagger UI: `https://finguide.les13.tech/finguide-api/swagger-ui.html`.
+
+Если меняется стратегия на ingress rewrite, это должно быть отдельным изменением в `finguide-ops` и отдельной проверкой `/auth`, `/`, probes и Swagger.
+
 ## Контракт окружения `les13`
 
 Текущий deployment target:

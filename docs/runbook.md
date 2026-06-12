@@ -68,6 +68,8 @@ ssh ops@finguide.les13.tech 'sudo k3s kubectl get nodes -o wide'
 ssh ops@finguide.les13.tech 'sudo k3s kubectl get pods -A'
 ```
 
+На Curie также установлен обычный `kubectl`; если работаешь под `root`, можно использовать его напрямую. Для документации и CI/CD считать canonical Kubernetes API именно k3s cluster на Curie, а не legacy systemd deployment.
+
 ## Ручной render overlays
 
 ```bash
@@ -194,6 +196,9 @@ kubectl -n finguide rollout status deployment/finguide-web
 ```bash
 curl -I https://finguide.les13.tech/
 curl -I https://finguide.les13.tech/auth/
+curl -fsS https://finguide.les13.tech/auth/realms/finguide/.well-known/openid-configuration >/dev/null
+curl -I https://finguide.les13.tech/finguide-api/actuator/health
+curl -I https://finguide.les13.tech/finguide-api/swagger-ui.html
 ```
 
 Для dev:
@@ -205,7 +210,42 @@ kubectl -n finguide-dev get resourcequota
 kubectl -n finguide-dev get certificate
 curl -I https://finguide-dev.les13.tech/
 curl -I https://finguide-dev.les13.tech/auth/
+curl -I https://finguide-dev.les13.tech/finguide-api/actuator/health
 ```
+
+## Keycloak admin
+
+Для `les13`:
+
+```text
+https://finguide.les13.tech/auth/admin/master/console/
+```
+
+Логиниться нужно в realm `master`. Значения лежат в Kubernetes Secret:
+
+```bash
+kubectl -n finguide get secret keycloak-secrets -o jsonpath='{.data.admin-username}' | base64 -d
+kubectl -n finguide get secret keycloak-secrets -o jsonpath='{.data.admin-password}' | base64 -d
+```
+
+После входа выбрать realm `finguide` для project settings. Не публиковать реальные admin credentials в git, issue comments, GitHub Pages или chat history без явной необходимости.
+
+## Проверка PostgreSQL backend
+
+Backend подключается к:
+
+```text
+jdbc:postgresql://finguide-api-postgres:5432/finguide
+```
+
+Проверить наличие прикладных таблиц:
+
+```bash
+kubectl -n finguide exec deploy/finguide-api-postgres -- \
+  psql -U finguide -d finguide -c '\dt public.*'
+```
+
+Ожидаемо после успешного старта backend/Liquibase должны быть таблицы вроде `user_profiles`, `financial_plans`, `incomes`, `expenses`, `goals`. Если `public tables: 0` или в логах API есть `ERROR: relation "user_profiles" does not exist`, значит схема не применена: смотреть logs `deployment/finguide-api`, активный image tag и Liquibase configuration в backend image.
 
 ## Logs
 
@@ -241,6 +281,15 @@ kubectl -n finguide rollout restart deployment/finguide-api
 kubectl -n finguide rollout restart deployment/finguide-web
 kubectl -n finguide rollout restart deployment/keycloak
 ```
+
+Если Keycloak уходит в `CrashLoopBackOff`, сначала смотреть:
+
+```bash
+kubectl -n finguide describe pod -l app.kubernetes.io/name=keycloak
+kubectl -n finguide logs deployment/keycloak --previous --tail=100
+```
+
+`OOMKilled` / exit code `137` на старте обычно означает, что Keycloak не успел пройти Quarkus augmentation. Base manifest даёт `memory: 3Gi` limit; уменьшать его без проверки не стоит.
 
 ## Быстрая диагностика ingress/TLS
 
