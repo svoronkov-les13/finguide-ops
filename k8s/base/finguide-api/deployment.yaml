@@ -34,6 +34,16 @@ spec:
                 secretKeyRef:
                   name: finguide-api-secrets
                   key: fg-api-db-password
+            - name: FINGUIDE_KEYCLOAK_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: admin-username
+            - name: FINGUIDE_KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secrets
+                  key: admin-password
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
           startupProbe:
