@@ -66,7 +66,7 @@ Backend API в Kubernetes ожидает, что application context path уже
 
 - публичный base URL: `https://finguide.les13.tech/finguide-api`;
 - API base: `https://finguide.les13.tech/finguide-api/api/v1`;
-- actuator: `https://finguide.les13.tech/finguide-api/actuator/health`;
+- actuator: internal management-port `http://finguide-api.finguide.svc.cluster.local:8081/actuator/health`;
 - Swagger UI: `https://finguide.les13.tech/finguide-api/swagger-ui.html`.
 
 Если меняется стратегия на ingress rewrite, это должно быть отдельным изменением в `finguide-ops` и отдельной проверкой `/auth`, `/`, probes и Swagger.

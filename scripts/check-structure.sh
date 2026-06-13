@@ -39,6 +39,7 @@ required_paths=(
   "k8s/platform/kubernetes-dashboard/helmchart.yaml"
   "k8s/platform/kubernetes-dashboard/kustomization.yaml"
   "k8s/platform/kubernetes-dashboard/namespace.yaml"
+  "k8s/platform/loki-grafana/prometheus-helmchart.yaml"
   "helm/finguide-api/Chart.yaml"
   "helm/finguide-api/values.yaml"
   "helm/finguide-web/Chart.yaml"

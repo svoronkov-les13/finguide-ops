@@ -39,7 +39,7 @@ docs/                  Архитектура, окружения, runbook'и, �
 k8s/base/              Общие Kubernetes-ресурсы
 k8s/overlays/dev/      Dev-контур finguide-dev.les13.tech
 k8s/overlays/les13/    Single-node Curie для finguide.les13.tech
-k8s/platform/          Cluster-level ресурсы: cert-manager issuers, Dashboard, Loki/Grafana
+k8s/platform/          Cluster-level ресурсы: cert-manager issuers, Dashboard, Loki/Grafana/Prometheus
 helm/                  Каркасы Helm-чартов для app и stack packaging
 ansible/               Bootstrap Kubernetes nodes и host-level операции
 terraform/             Заметки о Terraform boundary; сейчас cloud resources не управляются
@@ -83,7 +83,7 @@ ansible-playbook --syntax-check -i ansible/inventories/prod/hosts.ini ansible/pl
 - ingress: ingress-nginx на host ports `80/443`
 - TLS: cert-manager + Let's Encrypt
 - storage: k3s local-path
-- observability: Loki, Promtail и Grafana в отдельном namespace `loki-grafana`
+- observability: Loki, Promtail, Prometheus и Grafana в отдельном namespace `loki-grafana`
 
 Terraform сейчас не используется для установки k3s на Curie. Сервер уже существует, поэтому host bootstrap выполняется Ansible playbook'ом. Terraform стоит добавлять, когда репозиторий начнет управлять внешними ресурсами: VM, DNS, firewall/security groups, volumes или managed registry/secrets.
 

@@ -1,0 +1,47 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: prometheus
+  namespace: kube-system
+spec:
+  chart: prometheus
+  repo: https://prometheus-community.github.io/helm-charts
+  version: 29.11.0
+  targetNamespace: loki-grafana
+  createNamespace: false
+  valuesContent: |-
+    alertmanager:
+      enabled: false
+    kube-state-metrics:
+      enabled: false
+    prometheus-node-exporter:
+      enabled: false
+    prometheus-pushgateway:
+      enabled: false
+
+    server:
+      persistentVolume:
+        enabled: true
+        size: 5Gi
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 768Mi
+
+    extraScrapeConfigs: |-
+      - job_name: finguide-api
+        metrics_path: /actuator/prometheus
+        static_configs:
+          - targets:
+              - finguide-api.finguide.svc.cluster.local:8081
+            labels:
+              app: finguide-api
+              env: les13
+          - targets:
+              - finguide-api-dev.finguide-dev.svc.cluster.local:8081
+            labels:
+              app: finguide-api
+              env: dev

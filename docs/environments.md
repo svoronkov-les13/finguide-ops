@@ -129,7 +129,7 @@ Ingress:
 Platform add-ons живут отдельно от application namespaces:
 
 - `kubernetes-dashboard` — Kubernetes Dashboard и service account для token-login.
-- `loki-grafana` — Loki, Promtail и Grafana для cluster logs.
+- `loki-grafana` — Loki, Promtail, Prometheus и Grafana для cluster logs и JVM/application metrics.
 - `kube-system` — k3s `HelmChart` resources, которые управляют установкой platform add-ons.
 
 Эти ресурсы не должны добавляться в overlays `k8s/overlays/*`, чтобы не смешивать cluster-level tooling с окружениями FinGuide.

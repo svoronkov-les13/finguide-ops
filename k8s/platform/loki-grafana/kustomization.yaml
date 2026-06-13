@@ -3,5 +3,6 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - loki-helmchart.yaml
+  - prometheus-helmchart.yaml
   - promtail-helmchart.yaml
   - grafana-helmchart.yaml

@@ -36,4 +36,9 @@ spec:
             type: loki
             access: proxy
             url: http://loki:3100
+            isDefault: false
+          - name: Prometheus
+            type: prometheus
+            access: proxy
+            url: http://prometheus-server:80
             isDefault: true
