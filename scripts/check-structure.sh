@@ -20,6 +20,10 @@ required_paths=(
   "k8s/base/keycloak/kustomization.yaml"
   "k8s/base/keycloak/postgres.yaml"
   "k8s/base/keycloak/service.yaml"
+  "images/keycloak/Dockerfile"
+  "images/keycloak/themes/finguide/login/theme.properties"
+  "images/keycloak/themes/finguide/login/template.ftl"
+  "images/keycloak/themes/finguide/login/resources/css/finguide.css"
   "k8s/overlays/dev/kustomization.yaml"
   "k8s/overlays/dev/configmap.yaml"
   "k8s/overlays/dev/ingress.yaml"
@@ -57,12 +61,25 @@ required_paths=(
   ".github/workflows/deploy.yml"
   ".github/workflows/deploy-finguide.yml"
   ".github/workflows/deploy-finguide-dev.yml"
+  ".github/workflows/build-keycloak.yml"
 )
 
 missing=0
 for path in "${required_paths[@]}"; do
   if [[ ! -e "$path" ]]; then
     echo "missing: $path"
+    missing=1
+  fi
+done
+
+if [[ -f "k8s/base/keycloak/deployment.yaml" ]] && ! grep -q "ghcr.io/svoronkov-les13/finguide-keycloak" "k8s/base/keycloak/deployment.yaml"; then
+  echo "missing: keycloak deployment does not use FinGuide Keycloak image"
+  missing=1
+fi
+
+for realm in "k8s/overlays/dev/keycloak-realm.yaml" "k8s/overlays/les13/keycloak-realm.yaml"; do
+  if [[ -f "$realm" ]] && ! grep -q '"loginTheme": "finguide"' "$realm"; then
+    echo "missing: $realm does not set loginTheme=finguide"
     missing=1
   fi
 done

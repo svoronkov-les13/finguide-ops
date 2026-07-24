@@ -27,6 +27,7 @@
 ```text
 ghcr.io/svoronkov-les13/finguide-api:<tag>
 ghcr.io/svoronkov-les13/finguide-web:<tag>
+ghcr.io/svoronkov-les13/finguide-keycloak:<tag>
 ```
 
 Для релизных деплоев лучше использовать immutable tags: release tag или SHA. Для `les13` допустим tag `les13`, если он осознанно используется как текущий deploy target.
@@ -40,6 +41,8 @@ ghcr.io/svoronkov-les13/finguide-web:<tag>
 - `Deploy finguide`: деплоит `k8s/overlays/les13`, GitHub environment `les13`, namespace `finguide`.
 
 Оба workflow принимают `api_image_tag` и `web_image_tag`, используют `scripts/deploy-kustomize-overlay.sh`, применяют манифесты через `kubectl` и ждут rollout application deployments и Keycloak.
+
+Keycloak использует отдельный образ `finguide-keycloak`, который собирается workflow `Build FinGuide Keycloak`. Образ содержит login theme `finguide`; deploy workflow после rollout выставляет `loginTheme=finguide` в существующем realm через `kcadm`, потому что `--import-realm` не переопределяет настройки уже созданного realm.
 
 Обязательный GitHub Actions secret в каждом target environment:
 

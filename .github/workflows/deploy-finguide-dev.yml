@@ -61,4 +61,5 @@ jobs:
           API_DEPLOYMENT: finguide-api-dev
           WEB_DEPLOYMENT: finguide-web-dev
           KEYCLOAK_DEPLOYMENT: keycloak-dev
+          KEYCLOAK_REALM: finguide-dev
         run: bash scripts/deploy-kustomize-overlay.sh

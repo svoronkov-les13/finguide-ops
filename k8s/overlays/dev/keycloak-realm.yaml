@@ -8,6 +8,7 @@ data:
       "realm": "finguide-dev",
       "enabled": true,
       "displayName": "FinGuide Dev",
+      "loginTheme": "finguide",
       "registrationAllowed": true,
       "resetPasswordAllowed": true,
       "rememberMe": true,

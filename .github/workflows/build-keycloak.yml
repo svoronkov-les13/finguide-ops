@@ -1,0 +1,55 @@
+name: Build FinGuide Keycloak
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: Keycloak image tag
+        required: true
+        default: les13
+  push:
+    branches:
+      - main
+    paths:
+      - images/keycloak/**
+      - .github/workflows/build-keycloak.yml
+
+jobs:
+  build:
+    name: Build Keycloak image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set image tags
+        id: tags
+        env:
+          INPUT_TAG: ${{ inputs.image_tag }}
+        run: |
+          set -euo pipefail
+          image="ghcr.io/svoronkov-les13/finguide-keycloak"
+          sha_tag="${GITHUB_SHA::12}"
+          if [[ -n "${INPUT_TAG:-}" ]]; then
+            echo "tags=${image}:${INPUT_TAG},${image}:${sha_tag}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=${image}:les13,${image}:${sha_tag}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: images/keycloak
+          push: true
+          tags: ${{ steps.tags.outputs.tags }}
