@@ -20,10 +20,6 @@ required_paths=(
   "k8s/base/keycloak/kustomization.yaml"
   "k8s/base/keycloak/postgres.yaml"
   "k8s/base/keycloak/service.yaml"
-  "images/keycloak/Dockerfile"
-  "images/keycloak/themes/finguide/login/theme.properties"
-  "images/keycloak/themes/finguide/login/template.ftl"
-  "images/keycloak/themes/finguide/login/resources/css/finguide.css"
   "k8s/overlays/dev/kustomization.yaml"
   "k8s/overlays/dev/configmap.yaml"
   "k8s/overlays/dev/ingress.yaml"
@@ -61,7 +57,6 @@ required_paths=(
   ".github/workflows/deploy.yml"
   ".github/workflows/deploy-finguide.yml"
   ".github/workflows/deploy-finguide-dev.yml"
-  ".github/workflows/build-keycloak.yml"
 )
 
 missing=0

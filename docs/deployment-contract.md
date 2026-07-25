@@ -42,7 +42,7 @@ ghcr.io/svoronkov-les13/finguide-keycloak:<tag>
 
 Оба workflow принимают `api_image_tag` и `web_image_tag`, используют `scripts/deploy-kustomize-overlay.sh`, применяют манифесты через `kubectl` и ждут rollout application deployments и Keycloak.
 
-Keycloak использует отдельный образ `finguide-keycloak`, который собирается workflow `Build FinGuide Keycloak`. Образ содержит login theme `finguide`; deploy workflow после rollout выставляет `loginTheme=finguide` в существующем realm через `kcadm`, потому что `--import-realm` не переопределяет настройки уже созданного realm.
+Keycloak использует отдельный образ `finguide-keycloak`, который собирается в репозитории `svoronkov-les13/finguide-keycloak`. Образ содержит login theme `finguide`; deploy workflow после rollout выставляет `loginTheme=finguide` в существующем realm через `kcadm`, потому что `--import-realm` не переопределяет настройки уже созданного realm.
 
 Обязательный GitHub Actions secret в каждом target environment:
 
