@@ -9,6 +9,7 @@ set -euo pipefail
 : "${WEB_DEPLOYMENT:?WEB_DEPLOYMENT is required}"
 
 KEYCLOAK_DEPLOYMENT="${KEYCLOAK_DEPLOYMENT:-}"
+KEYCLOAK_REALM="${KEYCLOAK_REALM:-}"
 
 validate_image_tag() {
   local name="$1"
@@ -39,5 +40,12 @@ kubectl -n "$NAMESPACE" rollout status deployment/"$API_DEPLOYMENT" --timeout=18
 kubectl -n "$NAMESPACE" rollout status deployment/"$WEB_DEPLOYMENT" --timeout=180s
 
 if [[ -n "$KEYCLOAK_DEPLOYMENT" ]]; then
+  kubectl -n "$NAMESPACE" rollout restart deployment/"$KEYCLOAK_DEPLOYMENT"
   kubectl -n "$NAMESPACE" rollout status deployment/"$KEYCLOAK_DEPLOYMENT" --timeout=180s
+  if [[ -n "$KEYCLOAK_REALM" ]]; then
+    kubectl -n "$NAMESPACE" exec deployment/"$KEYCLOAK_DEPLOYMENT" -- sh -lc \
+      '/opt/keycloak/bin/kcadm.sh config credentials --server http://127.0.0.1:8080/auth --realm master --user "$KC_BOOTSTRAP_ADMIN_USERNAME" --password "$KC_BOOTSTRAP_ADMIN_PASSWORD" >/dev/null
+       /opt/keycloak/bin/kcadm.sh update "realms/$1" -s loginTheme=finguide' \
+      sh "$KEYCLOAK_REALM"
+  fi
 fi

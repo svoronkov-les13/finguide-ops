@@ -67,6 +67,18 @@ for path in "${required_paths[@]}"; do
   fi
 done
 
+if [[ -f "k8s/base/keycloak/deployment.yaml" ]] && ! grep -q "ghcr.io/svoronkov-les13/finguide-keycloak" "k8s/base/keycloak/deployment.yaml"; then
+  echo "missing: keycloak deployment does not use FinGuide Keycloak image"
+  missing=1
+fi
+
+for realm in "k8s/overlays/dev/keycloak-realm.yaml" "k8s/overlays/les13/keycloak-realm.yaml"; do
+  if [[ -f "$realm" ]] && ! grep -q '"loginTheme": "finguide"' "$realm"; then
+    echo "missing: $realm does not set loginTheme=finguide"
+    missing=1
+  fi
+done
+
 if [[ "$missing" -ne 0 ]]; then
   exit 1
 fi

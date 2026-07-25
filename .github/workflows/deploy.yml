@@ -56,12 +56,14 @@ jobs:
               echo "API_DEPLOYMENT=finguide-api" >> "$GITHUB_ENV"
               echo "WEB_DEPLOYMENT=finguide-web" >> "$GITHUB_ENV"
               echo "KEYCLOAK_DEPLOYMENT=keycloak" >> "$GITHUB_ENV"
+              echo "KEYCLOAK_REALM=finguide" >> "$GITHUB_ENV"
               ;;
             dev)
               echo "NAMESPACE=finguide-dev" >> "$GITHUB_ENV"
               echo "API_DEPLOYMENT=finguide-api-dev" >> "$GITHUB_ENV"
               echo "WEB_DEPLOYMENT=finguide-web-dev" >> "$GITHUB_ENV"
               echo "KEYCLOAK_DEPLOYMENT=keycloak-dev" >> "$GITHUB_ENV"
+              echo "KEYCLOAK_REALM=finguide-dev" >> "$GITHUB_ENV"
               ;;
           esac
           echo "OVERLAY=k8s/overlays/${ENVIRONMENT}" >> "$GITHUB_ENV"

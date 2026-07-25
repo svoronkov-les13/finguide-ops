@@ -12,3 +12,5 @@ images:
     newTag: les13
   - name: ghcr.io/svoronkov-les13/finguide-web
     newTag: les13
+  - name: ghcr.io/svoronkov-les13/finguide-keycloak
+    newTag: les13
